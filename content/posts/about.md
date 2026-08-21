@@ -2,6 +2,9 @@
 title: "About"
 layout: "single"
 url: "/about/"
+hideMeta: true
+build:
+  list: never
 ---
 
 GCC contributor, usually working on the C++ frontend and the static analyzer when I have the time.
@@ -18,3 +21,5 @@ language in Rust with a custom SSA IR and several middle end optimizations imple
 Outside of programming, I play tenor saxophone (mostly jazz) and do
 illustration, and I also like finding and drinking new beers I haven't tried
 before. I'm fluent in Português, English and 日本語.
+
+- [GitHub](https://github.com/riogu) | [Curriculum Vitae](/cv.pdf) | email: egas.g.ribeiro@gmail.com
