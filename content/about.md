@@ -7,10 +7,10 @@ build:
   list: never
 ---
 
-GCC contributor, usually working on the C++ frontend and the static analyzer when I have the time.
+GCC contributor, I usually work on the C++ frontend or the Static Analyzer when I have the time.
 
 I'm starting the PhD preparatory phase (MSc) at the Saarbrücken Graduate
-School of Computer Science this October, and I graduated in Computer Science
+School of Computer Science in Germany this October, and I graduated in Computer Science
 and Engineering from IST Lisbon in July 2026.
 
 I've written a couple of compilers from scratch before:\
