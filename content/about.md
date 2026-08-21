@@ -22,4 +22,4 @@ Outside of programming, I play tenor saxophone (mostly jazz) and do
 illustration, and I also like finding and drinking new beers I haven't tried
 before. I'm fluent in Português, English and 日本語.
 
-- [GitHub](https://github.com/riogu) | [Curriculum Vitae](/cv.pdf) | email: egas.g.ribeiro@gmail.com
+[GitHub](https://github.com/riogu) | [Curriculum Vitae](/cv.pdf) | email: egas.g.ribeiro@gmail.com
