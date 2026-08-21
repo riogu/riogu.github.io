@@ -1,0 +1,58 @@
+baseURL = 'https://riogu.github.io/'
+locale = 'en-us'
+title = 'riogu'
+theme = 'PaperMod'
+
+enableRobotsTXT = true
+enableEmoji = true
+pygmentsUseClasses = true
+
+[pagination]
+  pagerSize = 10
+
+[params]
+  env = 'production'
+  description = 'Compilers, GCC, and whatever else I am building.'
+  defaultTheme = 'auto'
+  ShowReadingTime = true
+  ShowShareButtons = false
+  ShowPostNavLinks = true
+  ShowBreadCrumbs = true
+  ShowCodeCopyButtons = true
+  ShowWordCount = false
+  ShowRssButtonInSectionTermList = true
+  disableSpecial1stPost = false
+  hidemeta = false
+  comments = false
+
+  [params.homeInfoParams]
+    Title = "hi, i'm riogu"
+    Content = "compiler/systems engineer. this is where I write up GSoC work, Saarland research, and GCC/LLVM internals."
+
+[[params.socialIcons]]
+  name = 'github'
+  url = 'https://github.com/riogu'
+
+[markup]
+  [markup.highlight]
+    noClasses = false
+    codeFences = true
+    guessSyntax = true
+    lineNos = false
+  [markup.goldmark.renderer]
+    unsafe = false
+
+[[menu.main]]
+  identifier = 'posts'
+  name = 'Posts'
+  url = '/posts/'
+  weight = 10
+
+[[menu.main]]
+  identifier = 'henceforth'
+  name = 'henceforth'
+  url = 'https://riogu.github.io/henceforth'
+  weight = 20
+
+[outputs]
+  home = ['HTML', 'RSS', 'JSON']
