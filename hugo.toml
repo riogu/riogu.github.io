@@ -1,8 +1,7 @@
 baseURL = 'https://riogu.github.io/'
-locale = 'en-us'
-title = 'riogu'
+languageCode = 'en-us'
+title = 'Egas Ribeiro'
 theme = 'PaperMod'
-
 enableRobotsTXT = true
 enableEmoji = true
 pygmentsUseClasses = true
@@ -12,7 +11,7 @@ pygmentsUseClasses = true
 
 [params]
   env = 'production'
-  description = 'Compilers, GCC, and whatever else I am building.'
+  description = 'Notes on compilers, static analysis, and GCC internals.'
   defaultTheme = 'auto'
   ShowReadingTime = true
   ShowShareButtons = false
@@ -20,27 +19,40 @@ pygmentsUseClasses = true
   ShowBreadCrumbs = true
   ShowCodeCopyButtons = true
   ShowWordCount = false
-  ShowRssButtonInSectionTermList = true
-  disableSpecial1stPost = false
+  ShowRssButtonInSectionTermList = false
+  ShowToc = true
+  capitalizeListTitles = false
+  TocOpen = false
+  disableSpecial1stPost = true
   hidemeta = false
   comments = false
 
   [params.homeInfoParams]
-    Title = "hi, i'm riogu"
-    Content = "compiler/systems engineer. this is where I write up GSoC work, Saarland research, and GCC/LLVM internals."
+    Title = "Egas"
+    Content = """
+GCC contributor, usually working on the C++ frontend and the static analyzer when I have time.\\
+I'm starting the PhD prep phase (MSc) at the Saarbrücken Graduate
+School of Computer Science this October to do compiler-related research.
+
+I mostly post about compiler related work and whatever I'm currently working on.\\
+See my [GSoC 2026 report](/posts/gsoc-2026/) or the [posts](/posts/) list.
+"""
 
 [[params.socialIcons]]
   name = 'github'
   url = 'https://github.com/riogu'
+[[params.socialIcons]]
+  name = 'email'
+  url = 'mailto:egas.g.ribeiro@gmail.com'
 
 [markup]
   [markup.highlight]
     noClasses = false
     codeFences = true
-    guessSyntax = true
+    guessSyntax = false
     lineNos = false
   [markup.goldmark.renderer]
-    unsafe = false
+    unsafe = true
 
 [[menu.main]]
   identifier = 'posts'
@@ -49,9 +61,9 @@ pygmentsUseClasses = true
   weight = 10
 
 [[menu.main]]
-  identifier = 'henceforth'
-  name = 'henceforth'
-  url = 'https://riogu.github.io/henceforth'
+  identifier = 'about'
+  name = 'About'
+  url = '/about/'
   weight = 20
 
 [outputs]
