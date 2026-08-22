@@ -1,4 +1,5 @@
 {{- $count := 1 -}}
 {{- with $.Page.Store.Get "sidenoteCounter" -}}{{ $count = add . 1 }}{{- end -}}
 {{- $.Page.Store.Set "sidenoteCounter" $count -}}
-<sup class="sidenote-marker">{{ $count }}</sup><span class="sidenote"><sup class="sidenote-marker">{{ $count }}</sup>{{ .Inner }}</span>
+{{- $side := .Get "side" | default "right" -}}
+<sup class="sidenote-marker">{{ $count }}</sup><span class="sidenote sidenote-{{ $side }}"><sup class="sidenote-marker">{{ $count }}</sup>{{ .Inner }}</span>
