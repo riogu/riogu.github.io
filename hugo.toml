@@ -11,7 +11,7 @@ pygmentsUseClasses = true
 
 [params]
   env = 'production'
-  description = 'Notes on compilers, static analysis, and GCC internals.'
+  description = 'Write-ups on compilers, static analysis, and my work on GCC.'
   defaultTheme = 'auto'
   ShowReadingTime = false
   ShowShareButtons = false
