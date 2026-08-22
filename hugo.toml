@@ -23,7 +23,7 @@ pygmentsUseClasses = true
   ShowToc = true
   capitalizeListTitles = false
   TocOpen = false
-  disableSpecial1stPost = true
+  disableSpecial1stPost = false
   hidemeta = false
   comments = false
 
@@ -34,7 +34,7 @@ GCC contributor, I usually work on the C++ frontend or the Static Analyzer when 
 I'm starting the PhD prep phase (MSc) at the Saarbrücken Graduate
 School of Computer Science this October to do compiler-related research.
 
-There will mostly be posts about compiler related work or whatever I'm currently working on.\\
+Here there will mostly be posts on compiler related work or whatever I'm currently working on.\\
 See my [GSoC 2026 report](/posts/gsoc-2026/) or the [posts](/posts/) list.
 """
 
