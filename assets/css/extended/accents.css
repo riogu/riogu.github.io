@@ -7,6 +7,21 @@
 /* in-content links get a blue accent instead of blending into body text */
 .md-content a:not(.anchor) {
     color: var(--accent-blue);
+    transition: color 0.2s ease;
+}
+
+.md-content a:not(.anchor):hover {
+    color: var(--accent-yellow);
+}
+
+/* generic clickables (site title, footer links, breadcrumbs, etc.) get a
+   yellow hover cue too, so it's not just body-text links */
+a {
+    transition: color 0.15s ease;
+}
+
+a:hover {
+    color: var(--accent-yellow);
 }
 
 /* dates get a yellow accent instead of the flat secondary blue */
