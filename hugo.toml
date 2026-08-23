@@ -26,6 +26,7 @@ pygmentsUseClasses = true
   disableSpecial1stPost = false
   hidemeta = false
   comments = false
+  hideFooter = true
 
   [params.homeInfoParams]
     Title = "Egas"
