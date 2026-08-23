@@ -30,3 +30,10 @@
 .home-info .entry-content {
     color: var(--content);
 }
+
+/* theme uses --code-bg for .list (homepage/archive) background by default,
+   which also has to double as the (darker) inline-code/tick background;
+   decouple them so tuning one doesn't drag the other along */
+.list {
+    background: var(--theme);
+}
