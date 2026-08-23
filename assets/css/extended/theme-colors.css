@@ -1,0 +1,29 @@
+:root {
+    --theme: rgb(255, 255, 255);
+    --entry: rgb(255, 255, 255);
+    --primary: rgb(30, 30, 30);
+    --secondary: rgb(108, 108, 108);
+    --tertiary: rgb(214, 214, 214);
+    --content: rgb(31, 31, 31);
+    --code-block-bg: rgb(28, 29, 33);
+    --code-bg: rgb(245, 245, 245);
+    --border: rgb(238, 238, 238);
+    --sidenote-color: rgb(108, 108, 108);
+}
+
+:root[data-theme="dark"] {
+    --theme: #2B2F37;
+    --entry: #313645;
+    --primary: #E7F2FC;
+    --secondary: #97A7D2;
+    --tertiary: #3A4356;
+    --content: #e1e6f5;
+    --code-block-bg: #333946;
+    --code-bg: #445069;
+    --border: #3A4356;
+    --sidenote-color: #CDD4E8;
+}
+
+.home-info .entry-content {
+    color: var(--content);
+}

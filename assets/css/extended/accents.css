@@ -1,0 +1,75 @@
+:root[data-theme="dark"] {
+    --accent-blue: #86A5EC;
+    --accent-purple: #C2CFF2;
+    --accent-yellow: #FCBF55;
+}
+
+/* in-content links get a blue accent instead of blending into body text */
+.md-content a:not(.anchor) {
+    color: var(--accent-blue);
+}
+
+/* dates get a yellow accent instead of the flat secondary blue */
+.entry-footer,
+.post-meta {
+    color: var(--accent-yellow);
+}
+
+/* card subtitles stay muted but brighter/readable, not a full accent color */
+.post-entry .entry-content {
+    color: var(--sidenote-color);
+}
+
+/* nav links pick up a subtle accent on hover instead of staying flat --primary */
+#menu li:nth-child(1) a:hover {
+    color: var(--accent-blue);
+}
+
+#menu li:nth-child(2) a:hover {
+    color: var(--accent-purple);
+}
+
+#menu li:nth-child(3) a:hover {
+    color: var(--accent-yellow);
+}
+
+.menu a {
+    transition: color 0.2s ease;
+}
+
+.md-content h1:hover .anchor,
+.md-content h2:hover .anchor,
+.md-content h3:hover .anchor,
+.md-content h4:hover .anchor,
+.md-content h5:hover .anchor,
+.md-content h6:hover .anchor,
+.anchor:hover {
+    color: var(--accent-blue) !important;
+}
+
+/* blockquote border picks up the purple-ish accent instead of plain content color */
+.md-content blockquote {
+    border-inline-start-color: var(--accent-purple);
+}
+
+/* theme hardcodes a flat rgb(213,213,214) here, which reads warm/yellowish next
+   to the cooler --content body text; align it instead */
+.md-content pre code {
+    color: var(--content);
+}
+
+/* inline code ticks lean purple instead of matching plain body text */
+.post-content code {
+    color: var(--accent-purple);
+}
+
+/* highlighted/mark text: dark text on a yellow accent background */
+mark {
+    background: var(--accent-yellow);
+    color: var(--theme);
+}
+
+/* tag pills: yellow accent on hover instead of a flat border tint */
+.post-tags a:hover {
+    color: var(--accent-yellow);
+}

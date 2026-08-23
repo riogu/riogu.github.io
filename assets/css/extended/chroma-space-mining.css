@@ -1,0 +1,93 @@
+/* Chroma syntax highlighting, remapped to the Space Mining palette
+   (https://github.com/riogu/space-mining.nvim) */
+
+.bg,
+.chroma {
+    color: #CDD4E8;
+    background-color: #333946;
+}
+
+.chroma .err { color: #D14A65 }
+.chroma .hl { background-color: #3A4356 }
+.chroma .lnt,
+.chroma .ln { color: #5E6A83 }
+
+/* Keywords */
+.chroma .k,
+.chroma .kp,
+.chroma .kr,
+.chroma .kd { color: #8EA3D9 }
+.chroma .kc { color: #E0B4BB }
+.chroma .kn { color: #567CC6 }
+.chroma .kt { color: #FCBF55 }
+
+/* Names */
+.chroma .na { color: #7A8BB8 }
+.chroma .nb { color: #9CD1FF }
+.chroma .bp { color: #8EA3D9 }
+.chroma .nc { color: #FCBF55 }
+.chroma .no { color: #5C898B }
+.chroma .nd { color: #FF9A5C; font-weight: bold }
+.chroma .ni { color: #5ABCAC }
+.chroma .ne { color: #FF9A5C }
+.chroma .nf,
+.chroma .fm { color: #9CD1FF }
+.chroma .nl { color: #FF9A5C }
+.chroma .nn { color: #FCBF55 }
+.chroma .py { color: #7A8BB8 }
+.chroma .nt { color: #8CA1D7 }
+.chroma .nv,
+.chroma .vc,
+.chroma .vg,
+.chroma .vi,
+.chroma .vm { color: #CDD4E8 }
+
+/* Strings */
+.chroma .s,
+.chroma .sb,
+.chroma .sc,
+.chroma .s1,
+.chroma .s2,
+.chroma .si,
+.chroma .sx,
+.chroma .ss { color: #589A8F }
+.chroma .sa { color: #8EA3D9 }
+.chroma .dl { color: #97A7D2 }
+.chroma .sd,
+.chroma .sh { color: #5E6A83 }
+.chroma .se { color: #5ABCAC }
+.chroma .sr { color: #FF9A5C }
+
+/* Numbers */
+.chroma .m,
+.chroma .mb,
+.chroma .mf,
+.chroma .mh,
+.chroma .mi,
+.chroma .il,
+.chroma .mo { color: #E0B4BB }
+
+/* Operators / punctuation */
+.chroma .o,
+.chroma .ow { color: #8897B6; font-weight: normal }
+.chroma .p { color: #97A7D2 }
+
+/* Comments */
+.chroma .c,
+.chroma .ch,
+.chroma .cm,
+.chroma .c1,
+.chroma .cs,
+.chroma .cp { color: #5E6A83; font-style: italic }
+.chroma .cpf { color: #5E6A83; font-weight: bold; font-style: italic }
+
+/* Generic (diffs, tracebacks) */
+.chroma .gd { color: #D14A65; background-color: #3a2f32 }
+.chroma .ge { font-style: italic }
+.chroma .gr,
+.chroma .gt { color: #D14A65 }
+.chroma .gh,
+.chroma .gu { color: #FF9A5C; font-weight: bold }
+.chroma .gi { color: #589A8F; background-color: #2a3a35 }
+.chroma .gs { font-weight: bold }
+.chroma .gl { text-decoration: underline }
