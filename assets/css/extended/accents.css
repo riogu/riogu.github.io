@@ -75,12 +75,10 @@ a:hover {
     border-inline-start-color: var(--accent-purple);
 }
 
-/* code blocks keep a dark backdrop (--code-block-bg) regardless of site
-   theme, so their plain/non-highlighted text needs a fixed light color
-   instead of --content, which flips to near-black in light mode and would
-   be unreadable against that dark background */
+/* code blocks now flip light/dark along with --code-block-bg, so their
+   plain/non-highlighted text can just track --content again */
 .md-content pre code {
-    color: #CDD4E8;
+    color: var(--content);
 }
 
 /* inline code ticks lean purple instead of matching plain body text */
@@ -88,12 +86,11 @@ a:hover {
     color: var(--accent-purple);
 }
 
-/* highlighted/mark text: dark text on a yellow accent background;
-   --code-block-bg stays a fixed dark color in both site themes, so this
-   keeps good contrast regardless of light/dark mode */
+/* highlighted/mark text: dark text on a yellow accent background; fixed
+   dark color since --code-block-bg now flips light/dark per theme */
 mark {
     background: var(--accent-yellow);
-    color: var(--code-block-bg);
+    color: #20232B;
 }
 
 /* tag pills: yellow accent on hover instead of a flat border tint */

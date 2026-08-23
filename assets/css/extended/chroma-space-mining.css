@@ -1,46 +1,49 @@
 /* Chroma syntax highlighting, remapped to the Space Mining palette
-   (https://github.com/riogu/space-mining.nvim) */
+   (https://github.com/riogu/space-mining.nvim). Dark mode keeps the
+   original editor-accurate colors; light mode uses darker/more saturated
+   versions of the same hues so tokens stay legible on a light backdrop. */
 
+/* ---- light mode (default) ---- */
 .bg,
 .chroma {
-    color: #CDD4E8;
-    background-color: #333946;
+    color: #2B3350;
+    background-color: #E3E7F5;
 }
 
-.chroma .err { color: #D14A65 }
-.chroma .hl { background-color: #3A4356 }
+.chroma .err { color: #B23052 }
+.chroma .hl { background-color: #D7DCF0 }
 .chroma .lnt,
-.chroma .ln { color: #5E6A83 }
+.chroma .ln { color: #7581A0 }
 
 /* Keywords */
 .chroma .k,
 .chroma .kp,
 .chroma .kr,
-.chroma .kd { color: #8EA3D9 }
-.chroma .kc { color: #E0B4BB }
-.chroma .kn { color: #567CC6 }
-.chroma .kt { color: #FCBF55 }
+.chroma .kd { color: #3457D5 }
+.chroma .kc { color: #C24F63 }
+.chroma .kn { color: #3A5FB8 }
+.chroma .kt { color: #A66A14 }
 
 /* Names */
-.chroma .na { color: #7A8BB8 }
-.chroma .nb { color: #9CD1FF }
-.chroma .bp { color: #8EA3D9 }
-.chroma .nc { color: #FCBF55 }
-.chroma .no { color: #5C898B }
-.chroma .nd { color: #FF9A5C; font-weight: bold }
-.chroma .ni { color: #5ABCAC }
-.chroma .ne { color: #FF9A5C }
+.chroma .na { color: #55618A }
+.chroma .nb { color: #1C7ED6 }
+.chroma .bp { color: #3457D5 }
+.chroma .nc { color: #A66A14 }
+.chroma .no { color: #2F6B6D }
+.chroma .nd { color: #C1621F; font-weight: bold }
+.chroma .ni { color: #2E8577 }
+.chroma .ne { color: #C1621F }
 .chroma .nf,
-.chroma .fm { color: #9CD1FF }
-.chroma .nl { color: #FF9A5C }
-.chroma .nn { color: #FCBF55 }
-.chroma .py { color: #7A8BB8 }
-.chroma .nt { color: #8CA1D7 }
+.chroma .fm { color: #1C7ED6 }
+.chroma .nl { color: #C1621F }
+.chroma .nn { color: #A66A14 }
+.chroma .py { color: #55618A }
+.chroma .nt { color: #3E5FC9 }
 .chroma .nv,
 .chroma .vc,
 .chroma .vg,
 .chroma .vi,
-.chroma .vm { color: #CDD4E8 }
+.chroma .vm { color: #2B3350 }
 
 /* Strings */
 .chroma .s,
@@ -50,13 +53,13 @@
 .chroma .s2,
 .chroma .si,
 .chroma .sx,
-.chroma .ss { color: #589A8F }
-.chroma .sa { color: #8EA3D9 }
-.chroma .dl { color: #97A7D2 }
+.chroma .ss { color: #2F7A6E }
+.chroma .sa { color: #3457D5 }
+.chroma .dl { color: #5B6FA8 }
 .chroma .sd,
-.chroma .sh { color: #5E6A83 }
-.chroma .se { color: #5ABCAC }
-.chroma .sr { color: #FF9A5C }
+.chroma .sh { color: #6E7A9C }
+.chroma .se { color: #2E8577 }
+.chroma .sr { color: #C1621F }
 
 /* Numbers */
 .chroma .m,
@@ -65,12 +68,12 @@
 .chroma .mh,
 .chroma .mi,
 .chroma .il,
-.chroma .mo { color: #E0B4BB }
+.chroma .mo { color: #C24F63 }
 
 /* Operators / punctuation */
 .chroma .o,
-.chroma .ow { color: #8897B6; font-weight: normal }
-.chroma .p { color: #97A7D2 }
+.chroma .ow { color: #4A5578; font-weight: normal }
+.chroma .p { color: #5B6FA8 }
 
 /* Comments */
 .chroma .c,
@@ -78,16 +81,108 @@
 .chroma .cm,
 .chroma .c1,
 .chroma .cs,
-.chroma .cp { color: #5E6A83; font-style: italic }
-.chroma .cpf { color: #5E6A83; font-weight: bold; font-style: italic }
+.chroma .cp { color: #7C88AA; font-style: italic }
+.chroma .cpf { color: #7C88AA; font-weight: bold; font-style: italic }
 
 /* Generic (diffs, tracebacks) */
-.chroma .gd { color: #D14A65; background-color: #3a2f32 }
+.chroma .gd { color: #B23052; background-color: #F6DEE3 }
 .chroma .ge { font-style: italic }
 .chroma .gr,
-.chroma .gt { color: #D14A65 }
+.chroma .gt { color: #B23052 }
 .chroma .gh,
-.chroma .gu { color: #FF9A5C; font-weight: bold }
-.chroma .gi { color: #589A8F; background-color: #2a3a35 }
+.chroma .gu { color: #C1621F; font-weight: bold }
+.chroma .gi { color: #2F7A6E; background-color: #DCEFEA }
 .chroma .gs { font-weight: bold }
 .chroma .gl { text-decoration: underline }
+
+/* ---- dark mode ---- */
+:root[data-theme="dark"] .bg,
+:root[data-theme="dark"] .chroma {
+    color: #CDD4E8;
+    background-color: #333946;
+}
+
+:root[data-theme="dark"] .chroma .err { color: #D14A65 }
+:root[data-theme="dark"] .chroma .hl { background-color: #3A4356 }
+:root[data-theme="dark"] .chroma .lnt,
+:root[data-theme="dark"] .chroma .ln { color: #5E6A83 }
+
+/* Keywords */
+:root[data-theme="dark"] .chroma .k,
+:root[data-theme="dark"] .chroma .kp,
+:root[data-theme="dark"] .chroma .kr,
+:root[data-theme="dark"] .chroma .kd { color: #8EA3D9 }
+:root[data-theme="dark"] .chroma .kc { color: #E0B4BB }
+:root[data-theme="dark"] .chroma .kn { color: #567CC6 }
+:root[data-theme="dark"] .chroma .kt { color: #FCBF55 }
+
+/* Names */
+:root[data-theme="dark"] .chroma .na { color: #7A8BB8 }
+:root[data-theme="dark"] .chroma .nb { color: #9CD1FF }
+:root[data-theme="dark"] .chroma .bp { color: #8EA3D9 }
+:root[data-theme="dark"] .chroma .nc { color: #FCBF55 }
+:root[data-theme="dark"] .chroma .no { color: #5C898B }
+:root[data-theme="dark"] .chroma .nd { color: #FF9A5C; font-weight: bold }
+:root[data-theme="dark"] .chroma .ni { color: #5ABCAC }
+:root[data-theme="dark"] .chroma .ne { color: #FF9A5C }
+:root[data-theme="dark"] .chroma .nf,
+:root[data-theme="dark"] .chroma .fm { color: #9CD1FF }
+:root[data-theme="dark"] .chroma .nl { color: #FF9A5C }
+:root[data-theme="dark"] .chroma .nn { color: #FCBF55 }
+:root[data-theme="dark"] .chroma .py { color: #7A8BB8 }
+:root[data-theme="dark"] .chroma .nt { color: #8CA1D7 }
+:root[data-theme="dark"] .chroma .nv,
+:root[data-theme="dark"] .chroma .vc,
+:root[data-theme="dark"] .chroma .vg,
+:root[data-theme="dark"] .chroma .vi,
+:root[data-theme="dark"] .chroma .vm { color: #CDD4E8 }
+
+/* Strings */
+:root[data-theme="dark"] .chroma .s,
+:root[data-theme="dark"] .chroma .sb,
+:root[data-theme="dark"] .chroma .sc,
+:root[data-theme="dark"] .chroma .s1,
+:root[data-theme="dark"] .chroma .s2,
+:root[data-theme="dark"] .chroma .si,
+:root[data-theme="dark"] .chroma .sx,
+:root[data-theme="dark"] .chroma .ss { color: #589A8F }
+:root[data-theme="dark"] .chroma .sa { color: #8EA3D9 }
+:root[data-theme="dark"] .chroma .dl { color: #97A7D2 }
+:root[data-theme="dark"] .chroma .sd,
+:root[data-theme="dark"] .chroma .sh { color: #5E6A83 }
+:root[data-theme="dark"] .chroma .se { color: #5ABCAC }
+:root[data-theme="dark"] .chroma .sr { color: #FF9A5C }
+
+/* Numbers */
+:root[data-theme="dark"] .chroma .m,
+:root[data-theme="dark"] .chroma .mb,
+:root[data-theme="dark"] .chroma .mf,
+:root[data-theme="dark"] .chroma .mh,
+:root[data-theme="dark"] .chroma .mi,
+:root[data-theme="dark"] .chroma .il,
+:root[data-theme="dark"] .chroma .mo { color: #E0B4BB }
+
+/* Operators / punctuation */
+:root[data-theme="dark"] .chroma .o,
+:root[data-theme="dark"] .chroma .ow { color: #8897B6; font-weight: normal }
+:root[data-theme="dark"] .chroma .p { color: #97A7D2 }
+
+/* Comments */
+:root[data-theme="dark"] .chroma .c,
+:root[data-theme="dark"] .chroma .ch,
+:root[data-theme="dark"] .chroma .cm,
+:root[data-theme="dark"] .chroma .c1,
+:root[data-theme="dark"] .chroma .cs,
+:root[data-theme="dark"] .chroma .cp { color: #5E6A83; font-style: italic }
+:root[data-theme="dark"] .chroma .cpf { color: #5E6A83; font-weight: bold; font-style: italic }
+
+/* Generic (diffs, tracebacks) */
+:root[data-theme="dark"] .chroma .gd { color: #D14A65; background-color: #3a2f32 }
+:root[data-theme="dark"] .chroma .ge { font-style: italic }
+:root[data-theme="dark"] .chroma .gr,
+:root[data-theme="dark"] .chroma .gt { color: #D14A65 }
+:root[data-theme="dark"] .chroma .gh,
+:root[data-theme="dark"] .chroma .gu { color: #FF9A5C; font-weight: bold }
+:root[data-theme="dark"] .chroma .gi { color: #589A8F; background-color: #2a3a35 }
+:root[data-theme="dark"] .chroma .gs { font-weight: bold }
+:root[data-theme="dark"] .chroma .gl { text-decoration: underline }

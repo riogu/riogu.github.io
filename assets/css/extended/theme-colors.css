@@ -2,14 +2,14 @@
    hues), just re-balanced for a light background instead of inverted to
    generic greys */
 :root {
-    --theme: #FFFFFF;
+    --theme: #EDEFF7;
     --entry: #FFFFFF;
     --primary: #232838;
     --secondary: #5B6690;
     --tertiary: #C9D0E8;
     --content: #262B3A;
-    --code-block-bg: rgb(28, 29, 33);
-    --code-bg: #EDEFF7;
+    --code-block-bg: #E3E7F5;
+    --code-bg: #E3E7F5;
     --border: #E1E5F2;
     --sidenote-color: #5B6690;
 }
@@ -29,11 +29,4 @@
 
 .home-info .entry-content {
     color: var(--content);
-}
-
-/* theme uses --code-bg for .list (homepage/archive) background in light mode
-   but --theme in dark mode; make both modes consistent with --theme so it
-   actually tracks the page-background edits above */
-.list {
-    background: var(--theme);
 }
