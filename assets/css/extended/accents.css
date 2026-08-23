@@ -1,3 +1,11 @@
+/* light mode: darker/more saturated versions of the same three accents so
+   they stay legible on a light background instead of washing out */
+:root {
+    --accent-blue: #3457D5;
+    --accent-purple: #6A5FC4;
+    --accent-yellow: #A66A14;
+}
+
 :root[data-theme="dark"] {
     --accent-blue: #86A5EC;
     --accent-purple: #C2CFF2;
@@ -67,10 +75,12 @@ a:hover {
     border-inline-start-color: var(--accent-purple);
 }
 
-/* theme hardcodes a flat rgb(213,213,214) here, which reads warm/yellowish next
-   to the cooler --content body text; align it instead */
+/* code blocks keep a dark backdrop (--code-block-bg) regardless of site
+   theme, so their plain/non-highlighted text needs a fixed light color
+   instead of --content, which flips to near-black in light mode and would
+   be unreadable against that dark background */
 .md-content pre code {
-    color: var(--content);
+    color: #CDD4E8;
 }
 
 /* inline code ticks lean purple instead of matching plain body text */
@@ -78,10 +88,12 @@ a:hover {
     color: var(--accent-purple);
 }
 
-/* highlighted/mark text: dark text on a yellow accent background */
+/* highlighted/mark text: dark text on a yellow accent background;
+   --code-block-bg stays a fixed dark color in both site themes, so this
+   keeps good contrast regardless of light/dark mode */
 mark {
     background: var(--accent-yellow);
-    color: var(--theme);
+    color: var(--code-block-bg);
 }
 
 /* tag pills: yellow accent on hover instead of a flat border tint */

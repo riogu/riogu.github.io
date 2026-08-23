@@ -1,14 +1,17 @@
+/* light mode: same Space Mining family as dark mode (cool navy/blue-grey
+   hues), just re-balanced for a light background instead of inverted to
+   generic greys */
 :root {
-    --theme: rgb(255, 255, 255);
-    --entry: rgb(255, 255, 255);
-    --primary: rgb(30, 30, 30);
-    --secondary: rgb(108, 108, 108);
-    --tertiary: rgb(214, 214, 214);
-    --content: rgb(31, 31, 31);
+    --theme: #FFFFFF;
+    --entry: #FFFFFF;
+    --primary: #232838;
+    --secondary: #5B6690;
+    --tertiary: #C9D0E8;
+    --content: #262B3A;
     --code-block-bg: rgb(28, 29, 33);
-    --code-bg: rgb(245, 245, 245);
-    --border: rgb(238, 238, 238);
-    --sidenote-color: rgb(108, 108, 108);
+    --code-bg: #EDEFF7;
+    --border: #E1E5F2;
+    --sidenote-color: #5B6690;
 }
 
 :root[data-theme="dark"] {
@@ -26,4 +29,11 @@
 
 .home-info .entry-content {
     color: var(--content);
+}
+
+/* theme uses --code-bg for .list (homepage/archive) background in light mode
+   but --theme in dark mode; make both modes consistent with --theme so it
+   actually tracks the page-background edits above */
+.list {
+    background: var(--theme);
 }
