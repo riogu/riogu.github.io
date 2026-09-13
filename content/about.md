@@ -16,7 +16,7 @@ and Engineering from IST Lisbon in July 2026.
 I've written a couple of compilers from scratch before:\
 [henceforth](https://github.com/riogu/henceforth) - a stack-based
 language in Rust with a custom SSA IR and several middle end optimizations implemented from scratch\
-[fumo-compiler](https://github.com/riogu/fumo-compiler) - full C-like language frontend targeting LLVM IR
+[fumo-compiler](https://github.com/riogu/fumo-compiler) - full C++-like language frontend targeting LLVM IR
 
 Outside of programming, I play tenor saxophone (mostly jazz) and do
 illustration, and I also like finding and drinking new beers I haven't tried
