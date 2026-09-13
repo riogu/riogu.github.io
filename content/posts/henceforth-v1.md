@@ -1,10 +1,10 @@
 +++
 date = '2026-09-13T08:13:06+01:00'
 draft = true
-title = "Henceforth: SSA compiler for an imperative stack-based language"
+title = "Henceforth - SSA compiler for an imperative stack-based language"
 tags = [ 'Rust', 'SSA', 'Compiler Optimizations', 'Henceforth']
-summary = """Notes on implementing a statically typed stack-based language that bridges imperative
-semantics with stack semantics, an optimizing SSA middle end, and more."""
+summary = """Notes about a statically typed stack-based language that bridges imperative
+semantics with stack semantics, implements an optimizing SSA middle end, and more."""
 +++
 
 ## Overview
@@ -16,8 +16,8 @@ Novo](https://github.com/joao-novo) have released a v1.0 for the
 Since at this point the project has enough work to be quite interesting, we thought it made sense to
 showcase what was done and have people try it, so we have organized our work and released a first version.
 
-Henceforth is an imperative [stack-based language]() where stack semantics (as well as types) are verified 
-statically rather than relying on interpreted semantics, which are commonly present in stack-based languages in
+Henceforth is a [stack-based language]() where stack semantics (as well as types) are verified 
+at compile time rather than relying on interpreted semantics, which are commonly present in stack-based languages in
 order to resolve some challenges{{% sidenote side="right" %}} In Forth, for example, a loop can change the
 depth of the stack however it wants, so the stack depth depends on the trip count. If you allowed that, you
 wouldn't know how many elements to return from a function! {{% /sidenote %}} that arise with the
@@ -44,13 +44,13 @@ fn pow: (i32 i32) -> (i32) {
 
 People familiar with other stack-based languages will notice a strong presence of imperative elements
 here that is largely uncommon in other languages with this paradigm.
-There are 2 key design philosophies we've decided to follow in this language that dictate most of the
-decisions made in terms of stack-based features:
+This is because there are 2 key things that dictate most of the decisions made in terms of stack-based
+features:
 
 First, we found that stack languages usually ask you to adopt the paradigm all at once, largely without
 compromising with other common paradigms, and that tends to make it quite difficult to engage with a
 large amount of people that come from either imperative or functional languages.
-Secondly, these people tend to find stack languages difficult to read and unexplicit.
+Secondly, these people tend to find stack languages difficult to read and too implicit.
 
 Given these 2 goals, we made a language that bridges the gap between a systems imperative language (such
 as C) and something like Forth.
@@ -60,37 +60,31 @@ data flow, multiple returns, values that don't need names) as first class featur
 familiar format.
 Other details of the language will be better explained in the next section.
 
-The project provides an interpreter, but it was written with the goal of compiling to executable code.
-This decision was quite central to how a lot of things were implemented, and resulted in interesting
-challenges with how the compiler handles stack logic internally, and also guided some decisions around
-what language features to support.
-
-
-As for the original motivation for this project, I decided that I wanted to start Henceforth after
-finishing my [first compiler]().
-A lot was learned from the hundreds of hours it took to finish, but it
-was a very "hands on" experience where I wanted to figure things out by doing, so many early decisions
-proved to cause various challenges as I pushed towards the conclusion of that project. I will briefly
-showcase that compiler as well in a later section.
-
+Another main goal I had for the project this time around was to try to write a scalable and modular
+compiler 
+{{% sidenote side="left" %}}
 While implementing this compiler I went through literature like [Cooper & Torczon's Engineering a
 Compiler](https://www.google.pt/books/edition/Engineering_a_Compiler/xcJrEAAAQBAJ?hl=pt-PT&gbpv=0), as I
 wanted it to be a more informed and structured project than last time.
-Another main goal I had for the project this time around was to try to write a scalable and modular
-compiler, rather than solely focusing on language features. This meant simplifying the frontend language
+{{% /sidenote  %}}, rather than solely focusing on language features. This meant simplifying the frontend language
 in some places and leaving interesting features for later releases in order to actually complete an
-initial minimal version (which, well, still took a year).
+initial minimal version (which seems still took a year).
 
 Overall, the project is split into 3 main sub-projects:
 - The frontend language (Henceforth) with its AST and type/semantic analysis
 - The middle end optimization and SSA IR infrastructure
 - The testing infrastructure and what it implements to support our SSA IR
 
+The project provides an interpreter, but it was written with the goal of compiling to executable code.
+This decision was quite central to how a lot of things were implemented, and resulted in interesting
+challenges with how the compiler handles stack logic internally, and also guided some decisions around
+what language features to support.
+
 It is relevant to note that the middle end isn't really tied to the frontend language.
-While the features it supports were choosen in order to be compatible with the goals of the frontend
+While the features it supports were chosen in order to be compatible with the goals of the frontend
 language, it can naturally be used for other frontends if we choose to write them later on, which was a
 big goal as well.
-It doesn't assume any stack semantics when targetted by a frontend, so it is sort of its own standalone
+It doesn't assume any stack semantics when targeted by a frontend, so it is sort of its own standalone
 project in some ways.
 
 ## The language
