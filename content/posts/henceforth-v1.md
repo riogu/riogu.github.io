@@ -1,52 +1,185 @@
 +++
 date = '2026-09-13T08:13:06+01:00'
 draft = true
-title = "Henceforth: SSA compiler for a stack-based language"
+title = "Henceforth: SSA compiler for an imperative stack-based language"
 tags = [ 'Rust', 'SSA', 'Compiler Optimizations', 'Henceforth']
-summary = """Notes on implementing a statically typed stack-based language with an optimizing SSA middle
-end, IR infrastructure that prints and parses from a single grammar, and more."""
+summary = """Notes on implementing a statically typed stack-based language that bridges imperative
+semantics with stack semantics, an optimizing SSA middle end, and more."""
 +++
 
-## Intro
+## Overview
 
 After working on this compiler on and off for around 1 year, me and my friend [João
-Novo](https://github.com/joao-novo) have released a v1.0 for the Henceforth compiler.\
-Since the project has enough work to be somewhat interesting at this point, we thought it made sense to
-show what was done and have people try it, so we organized our work and released a first version.
+Novo](https://github.com/joao-novo) have released a v1.0 for the
+[Henceforth](https://github.com/riogu/henceforth) compiler.
 
-Henceforth is a stack-based language where stack semantics (as well as types) are verified statically
-rather than relying on interpreted semantics, which are commonly present in stack-based languages in
-order to resolve some challenges that arise with the paradigm.
+Since the project has enough work to be quite interesting at this point, we thought it made sense to
+showcase what was done and have people try it, so we have organized our work and released a first version.
+
+Henceforth is an imperative [stack-based language]() where stack semantics (as well as types) are verified 
+statically rather than relying on interpreted semantics, which are commonly present in stack-based languages in
+order to resolve some challenges{{% sidenote side="right" %}} In Forth, for example, a loop can change the
+depth of the stack however it wants, so the stack depth depends on the trip count. If you allowed that, you
+wouldn't know how many elements to return from a function! {{% /sidenote %}} that arise with the
+paradigm. A code example would look something like this:
+```rust
+fn pow: (i32 i32) -> (i32) {
+    let exp: i32;  &= exp;   // `&=` pops the top of the stack, so the
+    let base: i32; &= base;  // last argument binds first
+
+    let i: i32; @(0) &= i;   // `@( ... )` is a stack expression, in postfix
+
+    @(1)  // begin accumulating the result on the stack
+    while @(i exp !=) {
+        @(base *)       // consume the accumulator, multiply, push it back
+        @(i 1 +) &= i;  // i += 1
+    }
+    // the accumulator is still sitting on the stack, and whatever
+    // the body leaves behind is the return value
+}
+
+// called like:
+@(2 10) &> pow;
+```
+
+People familiar with other stack-based languages will notice a strong presence of imperative elements
+here that is largely uncommon in other languages with this paradigm.
+There are 2 key design philosophies we've decided to follow in this language that dictate most of the
+decisions made in terms of stack-based features:
+
+First, we found that stack languages usually ask you to adopt the paradigm all at once, without
+compromising with other common paradigms, and that tends to make it quite difficult to engage with a
+large amount of people that come from either imperative or functional languages.
+
+Secondly, these people tend to find stack languages difficult to read and unexplicit. With these 2 goals,
+we made a language that bridges the gap between a systems imperative language (such as C) and something
+like Forth.
+
+The language allows people to experiment with the main features of a stack language (such as explicit
+data flow, multiple returns, values that don't need names) as first class features, but introduced in a
+familiar format.
+
+The details of the language will be explained better in a later section.
 
 The project provides an interpreter, but it was written with the goal of compiling to executable code.
 This decision was quite central to how a lot of things were implemented, and resulted in interesting
-challenges with how the compiler handles stack logic internally, and also guided decisions around what
-language features to support.
+challenges with how the compiler handles stack logic internally, and also guided some decisions around
+what language features to support.
 
-One of the main goals for the project was writing a full compiler with scalable and modular
-infrastructure, rather than solely focusing on frontend features. This meant simplifying the frontend
-language in some places, and leaving interesting features for later releases in order to actually
-complete an initial minimal version (which, well, still took a year).
 
-I wanted to start Henceforth after finishing my first compiler, [fumo-compiler](). A lot was learned from it,
-but it was a very "hands on" experience, so many early decisions proved to cause various challenges and
-technical debt as I pushed towards the conclusion of that project. I will briefly showcase that compiler
-as well in a later section.
+I decided I wanted to start Henceforth after finishing my [first compiler](). A lot was learned from the
+hundreds of hours I spent on that, but it was a very "hands on" experience, so many early decisions
+proved to cause various challenges and technical debt as I pushed towards the conclusion of that
+project. I will briefly showcase that compiler as well in a later section.
 
-Overall, the project splits into 3 main sub-projects:
+Another main goal I had for the project this time around was to try to write a full compiler that was
+scalable and modular, rather than solely focusing on language features. This meant
+simplifying the frontend language in some places, and leaving interesting features for later releases in
+order to actually complete an initial minimal version (which, well, still took a year).
+
+Overall, the project is split into 3 main sub-projects:
 - The frontend language (Henceforth) with its AST and type/semantic analysis
 - The middle end optimization and SSA IR infrastructure
 - The testing infrastructure and what it implements to support our SSA IR
 
-The middle end isn't really tied to the frontend language.\
-While the features it supports were
-choosed in order to be compatible with the goals of the frontend language, it can naturally be used for
-other frontends if we choose to write them later on, which was a big goal as well.
-It doesn't assume any stack semantics when targetted by a frontend.
+It is relevant to note that the middle end isn't really tied to the frontend language.
+While the features it supports were choosen in order to be compatible with the goals of the frontend
+language, it can naturally be used for other frontends if we choose to write them later on, which was a
+big goal as well.
+It doesn't assume any stack semantics when targetted by a frontend, so it is sort of its own standalone
+project in some ways.
 
 ## The language
 Do a showcase and also talk about lang design ideas, before any implementation. `@(...)`,
 `@dup`/`@pop`/`@depth`, `&=`/`:=`, function-scoped stacks, the `(params) -> (returns)` signature. 
+```rust
+// move vs copy
+let a: i32; @(10) &= a;
+let b: i32; @(a)  &= b;   // `a` moved, no longer usable
+let c: i32; @(a)  :=  c;  // `a` copied, still live
+```
+
+```rust 
+fn divmod: (i32 i32) -> (i32 i32) {
+    let d: i32; &= d;
+    let n: i32; &= n;
+    @(n d /)  // quotient
+    @(n d %)  // remainder
+}
+
+fn main: () -> () {
+    @(17 5) &> divmod;
+    let rem: i32;  &= rem;  // top of the stack binds first
+    let quot: i32; &= quot;
+}
+```
+
+```rust
+// a program that doesn't compile
+fn f: (bool) -> (i32) {
+    let cond: bool; &= cond;
+    if @(cond) {
+        @(1)
+    } else {
+        @(1 2)  // leaves one value too many
+    }
+}
+```
+
+```rust
+// stack introspection
+@(1 2 3)
+@dup      // 1 2 3 3
+@depth    // 1 2 3 3 4
+```
+
+```rust
+// arrays
+fn sum: ([]i32 i32) -> (i32) {
+    let n: i32; &= n;
+
+    let i: i32; @(0) &= i;
+    @(0)  // the running total, unnamed
+    while @(i n !=) {
+        @(i 1 +) &= i;  // reads arr[i] and adds it to the total
+    }
+}
+
+fn main: () -> () {
+    let arr: [5]i32;
+    // `[&]=` takes an index as an argument
+    @(1 0) [&]= arr;  // `1` is the value, `0` is the consumed index
+    @(2 1) [&]= arr;
+    @(3 2) [&]= arr;
+    @(4 3) [&]= arr;
+    @(5 4) [&]= arr;
+
+    @(arr 5) &> sum &> print_i32;
+}
+```
+
+```rust
+// runtime-sized locals
+fn bubble_sort: ([]i32 i32) -> ([]i32) {
+    let N: i32; &= N;
+    let arr: [N]i32; &= arr;
+
+    let i: i32; @(0) &= i;
+    while @(i N !=) {
+        let j: i32; @(0) &= j;
+        while @(j N 1 - i - !=) {
+            if @(arr j [] arr j 1 + [] >) {
+                let tmp: i32; @(arr j []) &= tmp;
+                @(arr j 1 + [] j) [&]= arr;
+                @(tmp j 1 +)      [&]= arr;
+            }
+            @(j 1 +) &= j;
+        }
+        @(i 1 +) &= i;
+    }
+    @(arr)
+}
+```
 
 ## From fumo-compiler to henceforth
 
