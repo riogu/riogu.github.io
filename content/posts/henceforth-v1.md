@@ -8,12 +8,41 @@ end, IR infrastructure that prints and parses from a single grammar, and more.""
 +++
 
 ## Intro
-Henceforth v1.0 is out. 
-What it is, why it exists, what was done. mention its a stack-based language with statically verified
-stacks, and an SSA middle end running over it. mention that the project is a collab.\
-Talk about how the goal was to build comprehensive, scalable compiler infrastructure rather than solely
-focusing on frontend features, which meant simplifying the frontend language to allow for this kind of
-project to actually be completed.
+
+After working on this compiler on and off for around 1 year, me and my friend [João
+Novo](https://github.com/joao-novo) have released a v1.0 for the Henceforth compiler.\
+Since the project has enough work to be somewhat interesting at this point, we thought it made sense to
+show what was done and have people try it, so we organized our work and released a first version.
+
+Henceforth is a stack-based language where stack semantics (as well as types) are verified statically
+rather than relying on interpreted semantics, which are commonly present in stack-based languages in
+order to resolve some challenges that arise with the paradigm.
+
+The project provides an interpreter, but it was written with the goal of compiling to executable code.
+This decision was quite central to how a lot of things were implemented, and resulted in interesting
+challenges with how the compiler handles stack logic internally, and also guided decisions around what
+language features to support.
+
+One of the main goals for the project was writing a full compiler with scalable and modular
+infrastructure, rather than solely focusing on frontend features. This meant simplifying the frontend
+language in some places, and leaving interesting features for later releases in order to actually
+complete an initial minimal version (which, well, still took a year).
+
+I wanted to start Henceforth after finishing my first compiler, [fumo-compiler](). A lot was learned from it,
+but it was a very "hands on" experience, so many early decisions proved to cause various challenges and
+technical debt as I pushed towards the conclusion of that project. I will briefly showcase that compiler
+as well in a later section.
+
+Overall, the project splits into 3 main sub-projects:
+- The frontend language (Henceforth) with its AST and type/semantic analysis
+- The middle end optimization and SSA IR infrastructure
+- The testing infrastructure and what it implements to support our SSA IR
+
+The middle end isn't really tied to the frontend language.\
+While the features it supports were
+choosed in order to be compatible with the goals of the frontend language, it can naturally be used for
+other frontends if we choose to write them later on, which was a big goal as well.
+It doesn't assume any stack semantics when targetted by a frontend.
 
 ## The language
 Do a showcase and also talk about lang design ideas, before any implementation. `@(...)`,
