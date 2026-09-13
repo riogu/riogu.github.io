@@ -3,47 +3,47 @@ date = '2026-09-13T08:13:06+01:00'
 draft = true
 title = "Henceforth: SSA compiler for a stack-based language"
 tags = [ 'Rust', 'SSA', 'Compiler Optimizations', 'Henceforth']
-summary = """Henceforth v1.0 is out. Notes on implementing a statically
-typed stack-based language with an optimizing SSA middle end, IR infrastructure that prints and parses from a
-single grammar, and more."""
+summary = """Notes on implementing a statically typed stack-based language with an optimizing SSA middle
+end, IR infrastructure that prints and parses from a single grammar, and more."""
 +++
 
 ## Intro
-
-What it is, why it exists, honest scope. The hook in the first few paragraphs: a stack-based language
-with statically verified stack discipline, and an SSA middle end running over it. One sentence naming
-João as co-author of the project and what's his.\
+Henceforth v1.0 is out. 
+What it is, why it exists, what was done. mention its a stack-based language with statically verified
+stacks, and an SSA middle end running over it. mention that the project is a collab.\
 Talk about how the goal was to build comprehensive, scalable compiler infrastructure rather than solely
 focusing on frontend features, which meant simplifying the frontend language to allow for this kind of
 project to actually be completed.
 
 ## The language
-
-Showcase plus design argument, before any implementation. `@(...)`, `@dup`/`@pop`/`@depth`, `&=`/`:=`,
-function-scoped stacks, the `(params) -> (returns)` signature. The argument: what static stack discipline
-buys and what it costs. This section exists so every later code sample is readable.
+Do a showcase and also talk about lang design ideas, before any implementation. `@(...)`,
+`@dup`/`@pop`/`@depth`, `&=`/`:=`, function-scoped stacks, the `(params) -> (returns)` signature. 
 
 ## From fumo-compiler to henceforth
 
-Two or three paragraphs, not a section. What you learned from the first compiler and what you
-deliberately did differently.
+Two or three paragraphs. What was learned from the first compiler and what was deliberately done
+differently, lessons learned from henceforth itself too.
 
 ## Frontend
 
-Compressed hard. Lexer and parser in a few paragraphs with a source link. The stack analyzer is the
+`NOTE:` Don't bother spending too long on explaining the parser and lexer.
+
+Lexer and parser in a few paragraphs with a source link. The stack analyzer is the
 centrepiece: identifier resolution, type checking, and verifying depth and type consistency across
-control flow paths. The diagnostics question belongs here, specifically how you point at a useful source
-location when a depth mismatch is only discovered at a join point.
+control flow paths. maybe talk about diagnostics.
 
 ## Lowering: AST to CFG to MIR
 
 The SlotMap arena and why stable instruction references matter across passes. How stack discipline maps
-onto SSA. Put the `HFS-MIR-to-LLVM-IR-example` side-by-side here; it orients anyone who knows LLVM in one
-figure.
+onto SSA, what was interesting about compile time stack interpretation. Maybe put the
+`HFS-MIR-to-LLVM-IR-example` side-by-side here, or not (its similar enough so its probs not important).
 
 ## The IR text format
 
-João's section. Start from the mundane problem (the dump format became a test API, so it must be
+`NOTE:` João this is for you to write, claude wrote this about your code, i didn't fact check it, ill
+leave it up to you. 
+
+Start from the mundane problem (the dump format became a test API, so it must be
 parseable, so printer and parser will drift), then the reframing (one grammar, two directions), then the
 mechanism. `iso`, `product`, `alt` as the three primitives everything else derives from. `syntax_phi` as
 the single worked example, with printer output and parsed-back input side by side. Then the honest parts:
@@ -60,18 +60,23 @@ on what the algorithms did to your IR. Includes CleanCFG since it's implemented.
 
 ## Testing a compiler
 
-hfscheck and its directives, with `CHECK-NOT` and `CHECK-COUNT` as the interesting pair. The `10 loads
-deleted` assertion and its tradeoff: robust to unrelated IR churn, blind to deleting the wrong ten.
-`.hfsir` inputs isolating pass tests from the frontend. `src/hfs/builder/` and the design property that
-makes mock testing possible, which is that passes take IR rather than a compiler context. The 104
-negative tests as diagnostic coverage. Differential testing between the two interpreters if you add it.
+`NOTE:` Joao you can do this if you want, otherwise ill do it later (i will at least add stuff about the
+optimization tests for sure and add those before writing this part).
+
+show hfscheck and its directives, with `CHECK-NOT` and `CHECK-COUNT` as the interesting pair.`.hfsir`
+inputs isolating pass tests from the frontend. Maybe the 104 negative tests as diagnostic coverage.
 
 ## Bugs worth remembering
 
-The `.copy()`-inside-a-`while`-condition bug, explained properly. Loop conditions are where stack
-discipline, CFG lowering and block structure collide, so it's the right story to tell.
+LLM suggestion:
+```
+The `.copy()`-inside-a-`while`-condition bug, explained properly. 
+Loop conditions are where stack discipline, CFG lowering and block structure
+collide, so it's the right story to tell.
+```
+NOTE: i might just add smth else 
 
 ## What v1.0 means and what's next
 
-Where you drew the line and why. ADCE, SCCP, GVN, LICM, Cranelift. What you'd do differently. Suggest
-people try it.
+What wasn't done and why. ADCE, SCCP, GVN, LICM, Cranelift (although ill write this assuming cranelift
+was implemented). What I'd do differently, what i did well. Suggest people try it.
