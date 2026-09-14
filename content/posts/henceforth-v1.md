@@ -48,11 +48,11 @@ This is because there are 2 key things that dictate most of the decisions made i
 features:
 
 First, we found that stack languages usually ask you to adopt the paradigm all at once, largely without
-compromising with other common paradigms, and that tends to make it quite difficult to engage with a
+compromising with other common paradigms, and that tends to make it quite difficult to engage `NOTE: make it actually make sense` with a
 large amount of people that come from either imperative or functional languages.
 Secondly, these people tend to find stack languages difficult to read and too implicit.
 
-Given these 2 goals, we made a language that bridges the gap between a systems imperative language (such
+Given these 2 goals, we made a language that bridges the gap between a systems `NOTE: if systems why no pointers :(` imperative language (such
 as C) and something like Forth.
 
 The language allows people to experiment with the main features of a stack language (such as explicit
@@ -91,7 +91,8 @@ project in some ways.
 move vs copy
 ```rust
 let a: i32; @(10) &= a;
-let b: i32; @(a)  &= b;   // `a` moved, no longer usable
+let b: i32; @(a) // copies 'a' onto the stack
+&= b;   // `a` no longer in the stack, value moved onto `b`
 let c: i32; @(a)  :=  c;  // `a` copied, still live
 ```
 
