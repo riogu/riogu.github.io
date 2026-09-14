@@ -12,7 +12,6 @@ semantics with stack semantics, implements an optimizing SSA middle end, and mor
 After working on this compiler on and off for about a 1 year, me and my friend [João
 Novo](https://github.com/joao-novo) have released a v1.0 for the
 [Henceforth](https://github.com/riogu/henceforth) compiler.
-
 Since at this point the project has enough work to be quite interesting, we thought it made sense to
 showcase what was done and have people try it, so we have organized our work and released a first version.
 
@@ -48,11 +47,11 @@ This is because there are 2 key things that dictate most of the decisions made i
 features:
 
 First, we found that stack languages usually ask you to adopt the paradigm all at once, largely without
-compromising with other common paradigms, and that tends to make it quite difficult to engage `NOTE: make it actually make sense` with a
-large amount of people that come from either imperative or functional languages.
+compromising with other common paradigms, and that tends to make it quite difficult to introduce a
+large amount of people that come from either imperative or functional languages to stack-based languages.
 Secondly, these people tend to find stack languages difficult to read and too implicit.
 
-Given these 2 goals, we made a language that bridges the gap between a systems `NOTE: if systems why no pointers :(` imperative language (such
+Given these 2 goals, we made a language that bridges the gap between an imperative language (such
 as C) and something like Forth.
 
 The language allows people to experiment with the main features of a stack language (such as explicit
@@ -88,14 +87,19 @@ It doesn't assume any stack semantics when targeted by a frontend, so it is sort
 project in some ways.
 
 ## The language
-move vs copy
+
+Henceforth supports move `&` vs copy `:` operators from the stack on assignments and function calls. These decide if a
+value on the stack should be copied or popped. It is the main mechanism to interact
+between the imperative and the stack-based side of the language, and pass along values.
+
 ```rust
-let a: i32; @(10) &= a;
-let b: i32; @(a) // copies 'a' onto the stack
-&= b;   // `a` no longer in the stack, value moved onto `b`
-let c: i32; @(a)  :=  c;  // `a` copied, still live
+let a: i32; @(10) &= a;  // this pops `10` from the stack 
+let c: i32; @(a)  := c;  // stack value is copied, the stack still has the value
+let b: i32;       &= b;  //  we pop `a` from the stack (which is now empty)
 ```
 
+Functions parameters specify how much of the stack of the caller we can access when calling it. The
+return type specifies the state the stack has to be in after the function returns.
 ```rust 
 fn divmod: (i32 i32) -> (i32 i32) {
     let d: i32; &= d;
@@ -111,11 +115,21 @@ fn main: () -> () {
 }
 ```
 
-a program that doesn't compile
+The following example doesn't compile: Henceforth has a lot of logic to verify at compile time
+that all control flow constructs agree on what the types and length of the stack is on all paths, and it
+also checks that paths that return match the function signature.
 ```rust
-fn f: (bool) -> (i32) {
-    let cond: bool; &= cond;
-    if @(cond) {
+fn f: (bool bool bool) -> (i32) {
+    let cond1: bool; &= cond1;
+    let cond2: bool; &= cond2;
+    let cond3: bool; &= cond3;
+    if @(cond1) {
+        @(1)
+    } else if @(cond2) {
+        if @(cond3) {
+            @(1.5)    // leaves the wrong type, so it is invalid
+            return;   // the return keyword lets functions end early
+        }
         @(1)
     } else {
         @(1 2)  // leaves one value too many
@@ -123,14 +137,31 @@ fn f: (bool) -> (i32) {
 }
 ```
 
-stack introspection
+Output:
+```j
+error: expected i32 on stack for return, found f32
+  --> tests/compile_tests/pow.hfs:11:13
+   |
+11 |             return;   // the return keyword lets functions end early
+   |             ^^^^^^
+   |
+error: expected a stack depth of 1, found a stack depth of 2
+  --> tests/compile_tests/pow.hfs:11:9
+   |
+11 |         @(1 2)  // leaves one value too many
+   |         ^^^^^^
+   |
+
+```
+
+Stack keywords exist in the language to allow for stack introspection:
 ```rust
 @(1 2 3)
 @dup      // 1 2 3 3
 @depth    // 1 2 3 3 4
 ```
 
-arrays
+Arrays are supported as well:
 ```rust
 fn sum: ([]i32 i32) -> (i32) {
     let n: i32; &= n;
@@ -154,8 +185,14 @@ fn main: () -> () {
     @(arr 5) &> sum &> print_i32;
 }
 ```
+Semantically, putting values on the `@(...)` stack will always result in "copying" them onto the stack,
+so no aliasing ever happens. Internally, nothing is ever actually lowered to stack push and pop
+operations, so if stack values aren't used they aren't lowered to anything (this is explained in the
+[lowering section](/posts/henceforth-v1/#lowering-ast-to-cfg-to-mir)).
 
-runtime-sized locals
+Henceforth also supports runtime-sized locals, and supports writing `[]i32` in functions so you don't have to
+specify the size of an array in a function like `bubble_sort` (the array size is passed on the 2nd
+argument).
 ```rust
 fn bubble_sort: ([]i32 i32) -> ([]i32) {
     let N: i32; &= N;
@@ -177,12 +214,6 @@ fn bubble_sort: ([]i32 i32) -> ([]i32) {
     @(arr)
 }
 ```
-
-## From fumo-compiler to henceforth
-
-Two or three paragraphs. What was learned from the first compiler and what was deliberately done
-differently, lessons learned from henceforth itself too.
-
 ## Frontend
 
 `NOTE:` Don't bother spending too long on explaining the parser and lexer.
