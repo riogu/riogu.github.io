@@ -12,6 +12,12 @@
     --accent-yellow: #FCBF55;
 }
 
+/* tags moved from post-footer to post-header (below the date); give them
+   breathing room from the meta line above */
+.post-header .post-tags {
+    margin-top: 14px;
+}
+
 /* in-content links get a blue accent instead of blending into body text */
 .md-content a:not(.anchor) {
     color: var(--accent-blue);
