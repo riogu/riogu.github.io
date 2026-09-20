@@ -22,7 +22,7 @@ depth of the stack however it wants, so the stack depth depends on the trip coun
 wouldn't know how many elements to return from a function! {{% /sidenote %}} that arise with the
 paradigm. A code example would look something like this:
 ```rust
-fn pow: (i32 i32) -> (i32) {
+fn pow: (/* base */ i32 /* exp */ i32) -> (i32) {
     let exp: i32;  &= exp;   // `&=` pops the top of the stack, so the
     let base: i32; &= base;  // last argument binds first
 
@@ -41,7 +41,28 @@ fn pow: (i32 i32) -> (i32) {
 @(2 10) &> pow;
 ```
 
-People familiar with other stack-based languages will notice a strong presence of imperative elements
+For those more used to stack-based languages, this function could also be written using stack operations:
+```rust 
+fn pow: (/* base */ i32 /* exp */ i32) -> (i32) {
+    let i: i32; @(0) &= i; 
+    @(1 @rrot)
+    while @(@dup i !=) {
+        @(@rrot @dup @rot * @rrot @swap)
+        @(i 1 +) &= i;
+    }
+    @pop @pop
+}
+```
+
+To showcase the language used in practice, we have also implemented Tetris, which you can find [in the
+testsuite](https://github.com/riogu/henceforth/blob/main/tests/compile_tests/tetris.hfs):
+
+<video autoplay loop muted playsinline
+       style="display:block; margin:0 auto; width:32rem; max-width:100%; height:auto;">
+  <source src="/videos/tetris.mp4" type="video/mp4">
+</video>
+
+With these examples, people familiar with other stack-based languages will notice a strong presence of imperative elements
 here that is largely uncommon in other languages with this paradigm.
 This is because there are 2 key things that dictate most of the decisions made in terms of stack-based
 features:
