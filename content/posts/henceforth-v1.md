@@ -9,16 +9,17 @@ semantics with stack semantics, implements an optimizing SSA middle end, and mor
 
 ## Overview
 
-After working on this compiler on and off for about a 1 year, me and my friend [João
+After working on this compiler on and off for about a year, me and my friend [João
 Novo](https://github.com/joao-novo) have released a v1.0 for the
 [Henceforth](https://github.com/riogu/henceforth) compiler.
 Since at this point the project has enough work to be quite interesting, we thought it made sense to
 showcase what was done and have people try it, so we have organized our work and released a first version.
 
-Henceforth is a [stack-based language]() where stack semantics (as well as types) are verified 
-at compile time rather than relying on interpreted semantics, which are commonly present in stack-based languages in
-order to resolve some challenges{{% sidenote side="right" %}} In Forth, for example, a loop can change the
-depth of the stack however it wants, so the stack depth depends on the trip count. If you allowed that, you
+Henceforth is a [stack-based language](https://en.wikipedia.org/wiki/Stack-oriented_programming) where
+stack semantics (as well as types) are verified at compile time rather than relying on interpreted
+semantics, which are commonly present in stack-based languages in order to resolve some challenges{{%
+sidenote side="right" %}} In Forth, for example, a loop can change the depth of the stack however it
+wants, so the stack depth depends on the trip count. If you allowed that in a compiled language, you
 wouldn't know how many elements to return from a function! {{% /sidenote %}} that arise with the
 paradigm. A code example would look something like this:
 ```rust
@@ -196,13 +197,7 @@ fn sum: ([]i32 i32) -> (i32) {
 
 fn main: () -> () {
     let arr: [5]i32;
-    // `[&]=` takes an index as an argument
-    @(1 0) [&]= arr;  // `1` is the value, `0` is the consumed index
-    @(2 1) [&]= arr;
-    @(3 2) [&]= arr;
-    @(4 3) [&]= arr;
-    @(5 4) [&]= arr;
-
+    @([0 1 2 3 4 5]) &= arr;  // create an array literal on the stack
     @(arr 5) &> sum &> print_i32;
 }
 ```
@@ -277,17 +272,7 @@ optimization tests for sure and add those before writing this part).
 show hfscheck and its directives, with `CHECK-NOT` and `CHECK-COUNT` as the interesting pair.`.hfsir`
 inputs isolating pass tests from the frontend. Maybe the 104 negative tests as diagnostic coverage.
 
-## Bugs worth remembering
-
-LLM suggestion:
-```
-The `.copy()`-inside-a-`while`-condition bug, explained properly. 
-Loop conditions are where stack discipline, CFG lowering and block structure
-collide, so it's the right story to tell.
-```
-NOTE: i might just add smth else 
-
 ## What v1.0 means and what's next
 
-What wasn't done and why. ADCE, SCCP, GVN, LICM, Cranelift (although ill write this assuming cranelift
-was implemented). What I'd do differently, what i did well. Suggest people try it.
+What wasn't done and why. ADCE, SCCP, GVN, LICM. What I'd do differently, what i did well. Suggest people
+try it.
