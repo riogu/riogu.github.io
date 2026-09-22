@@ -1,0 +1,17 @@
+fn factorial: (i32) -> (i32) {
+    let n: i32;
+    let result: i32;
+    &= n;
+    @(1) &= result;
+    while @(n 1 >) {
+        @(result n *) &= result;
+        @(n 1 -) &= n;
+    }
+    @(result);
+}
+
+fn main: () -> () {
+    @(5) &> factorial;
+    if @(@dup 120 ==) { @("factorial example\n") &> print }
+    @pop
+}

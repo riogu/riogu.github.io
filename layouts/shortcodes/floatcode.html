@@ -1,0 +1,12 @@
+{{- $lang := .Get "lang" | default (.Get 0) | default "text" -}}
+{{- $side := .Get "side" | default (.Get 1) | default "left" -}}
+{{- $offset := .Get "offset" -}}
+{{- $caption := .Get "caption" -}}
+<div class="float-code-wrap float-{{ $side }}"{{ with $offset }} style="--float-offset: {{ . | safeCSS }};"{{ end }}>
+{{- with $caption }}
+<p class="float-code-caption">{{ . | $.Page.RenderString }}</p>
+{{- end }}
+<div class="float-code">
+{{ highlight (trim $.Inner "\n") $lang "" }}
+</div>
+</div>

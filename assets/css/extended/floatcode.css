@@ -1,0 +1,40 @@
+.float-code-wrap {
+  margin: 1.5rem 0;
+}
+
+.float-code-caption {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--sidenote-color);
+  margin: 0 0 0.5rem;
+}
+
+.float-code {
+  font-size: 0.95em;
+}
+
+/* mirrors the .sidenote breakpoint/mechanism in sidenotes.css: past 1300px
+   there's enough margin around .post-content to pull the code (and its
+   caption, as one unit so they can't drift apart and overlap other
+   margin content) out of the text column entirely instead of squeezing a
+   float into it */
+@media (min-width: 1300px) {
+  .float-code-wrap {
+    position: absolute;
+    width: 325px;
+    margin: 0;
+    /* per-instance nudge: pass offset="-1.5rem" (or similar) to the
+       shortcode to correct where it lands next to the text beside it */
+    margin-top: var(--float-offset, 0px);
+  }
+
+  .float-right {
+    left: 100%;
+    margin-left: 1.6rem;
+  }
+
+  .float-left {
+    right: 100%;
+    margin-right: 1.6rem;
+  }
+}

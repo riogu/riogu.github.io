@@ -22,6 +22,8 @@ sidenote side="right" %}} In Forth, for example, a loop can change the depth of 
 wants, so the stack depth depends on the trip count. If you allowed that in a compiled language, you
 wouldn't know how many elements to return from a function! {{% /sidenote %}} that arise with the
 paradigm. A code example would look something like this:
+
+
 ```rust
 fn pow: (/* base */ i32 /* exp */ i32) -> (i32) {
     let exp: i32;  &= exp;   // `&=` pops the top of the stack, so the
@@ -41,9 +43,7 @@ fn pow: (/* base */ i32 /* exp */ i32) -> (i32) {
 // called like:
 @(2 10) &> pow;
 ```
-
-For those more used to stack-based languages, this function could also be written using stack operations:
-```rust 
+{{< floatcode lang="rust" side="left" offset="-25rem"  caption="For those more used to stack-based languages, this function could also be written using stack operations:" >}}
 fn pow: (/* base */ i32 /* exp */ i32) -> (i32) {
     let i: i32; @(0) &= i; 
     @(1 @rrot)
@@ -53,7 +53,8 @@ fn pow: (/* base */ i32 /* exp */ i32) -> (i32) {
     }
     @pop @pop
 }
-```
+{{< /floatcode >}}
+
 
 To showcase the language used in practice, we have also implemented Tetris, which you can find [in the
 testsuite](https://github.com/riogu/henceforth/blob/main/tests/compile_tests/tetris.hfs):
@@ -81,7 +82,7 @@ data flow, multiple returns, values that don't need names) as first class featur
 familiar format.
 Other details of the language will be better explained in the next section.
 
-Another main goal I had for the project this time around was to try to write a scalable and modular
+Personally, another goal I had for the project this time around was to try to write a scalable and modular
 compiler 
 {{% sidenote side="left" %}}
 While implementing this compiler I went through literature like [Cooper & Torczon's Engineering a
@@ -137,6 +138,7 @@ fn main: () -> () {
 }
 ```
 
+<a id="stack-depth-example"></a>
 The following example doesn't compile: Henceforth has a lot of logic to verify at compile time
 that all control flow constructs agree on what the types and length of the stack is on all paths, and it
 also checks that paths that return match the function signature.
@@ -230,19 +232,73 @@ fn bubble_sort: ([]i32 i32) -> ([]i32) {
     @(arr)
 }
 ```
+
 ## Frontend
 
-`NOTE:` Don't bother spending too long on explaining the parser and lexer.
+The [recursive descent parser](https://github.com/riogu/henceforth/blob/main/src/hfs/parser.rs) is
+actually quite simple compared to many other languages. One main reason for this is that the parser
+doesn't need to deal with any operator precedence, since that isn't present in stack-based languages like
+Henceforth.
 
-Lexer and parser in a few paragraphs with a source link. The stack analyzer is the
-centrepiece: identifier resolution, type checking, and verifying depth and type consistency across
-control flow paths. maybe talk about diagnostics.
+Most of the interesting work went into the [stack
+analyzer](https://github.com/riogu/henceforth/blob/main/src/hfs/stack_analyzer.rs) pass, which simulates
+the stack at compile time and reconstructs the AST as an "imperative" language's AST from the stack
+semantics. This is the core idea that makes it so most stack operations don't really emit any codegen.
+
+The other half of stack simulation involves keeping track of the depth and types of each control flow
+branch, as shown in [this earlier example](#stack-depth-example).
+
+The next section showcases how the [IR
+lowerer](https://github.com/riogu/henceforth/blob/main/src/hfs/ir_lowerer.rs) pass takes our AST from the
+previous pass and runs another round of stack simulation, in order to output SSA IR that is agnostic to any
+stack related semantics.
 
 ## Lowering to a CFG and SSA IR
 
-The SlotMap arena and why stable instruction references matter across passes. How stack discipline maps
-onto SSA, what was interesting about compile time stack interpretation. Maybe put the
-`HFS-MIR-to-LLVM-IR-example` side-by-side here, or not (its similar enough so its probs not important).
+In practice, henceforth never does any "push" and "pop" from any real stack, all of these operations are
+interpreted at compile time. For example:
+```rust 
+let foo: i32;
+let bar: i32;
+@(3 4 *) := foo; // reads the stack and leaves it untouched
+&= bar; // pops the stack and reads the values
+```
+
+Would emit this IR:
+```rust
+start_1:
+  %0 = i32 1
+  %1 = i32 alloca %0 // let foo: i32;
+  %2 = i32 1
+  %3 = i32 alloca %2 // let bar: i32;
+  %4 = i32 3
+  %5 = i32 4
+  %6 = i32 %4 * %5
+  store %6, %1
+  store %6, %3
+```
+
+The compiler simulates the stack in order to associate each usage of a stack value to its user, which is
+why the IR doesn't have to emit any stack operations, all uses are solved during lowering.\
+Note that, since the first `:= foo` is a copy, the next `&= bar` statement will use the same result
+computed for `foo` without applying any optimizations.
+
+Additionally, if we did:
+```rust
+@(3 4 5) @pop @pop @pop
+```
+
+The `@pop` doesn't exist by the time we emit the IR, since the stack has already been interpreted.
+The frontend will emit these constants:
+```rust
+start_1:
+  %0 = i32 3
+  %1 = i32 4
+  %2 = i32 5
+```
+Stack operations like `@rot`, `@pop`, `@swap` and others are frontend constructs that exist purely in the
+compiler, and once they are interpreted, there is no real concept of a stack by the time we are emitting
+our SSA IR. It is easy to see how this extends to other examples.
 
 ## IR as a textual format
 
@@ -259,10 +315,67 @@ if it's actually tested.
 
 ## Optimizations and middle end work
 
-Def-use chains with RAUW, dominator tree, dominance frontiers, RPO. Then mem2reg and DCE walked on the
-factorial example, using `cfg.dot` renders: the CFG, the dominance frontier of the loop header, where the
-phis land. Cite Cooper-Harvey-Kennedy and Cytron in a sentence each and link them, then spend the words
-on what the algorithms did to your IR. Includes CleanCFG since it's implemented.
+Henceforth implements its own
+[optimizer](https://github.com/riogu/henceforth/blob/main/src/hfs/ir_optimizations.rs) on top of the SSA
+IR generated by the frontend. The optimizer uses various constructs implemented by the 
+[analysis](https://github.com/riogu/henceforth/blob/main/src/hfs/ir_analysis.rs)
+part of the middle end, such as def-use chains with
+[RAUW](https://github.com/riogu/henceforth/blob/7ab535fedc0f861998318bf2415476fe366b281f/src/hfs/ir_analysis.rs#L52),
+a [dominator
+tree](https://github.com/riogu/henceforth/blob/7ab535fedc0f861998318bf2415476fe366b281f/src/hfs/ir_analysis.rs#L149),
+dominance frontiers, and RPO/postorder traversal, which are built once per function and then reused
+across passes. 
+
+Dominator computation follows [Cooper, Harvey, and Kennedy's iterative
+algorithm](https://www.cs.tufts.edu/comp/150FP/archive/keith-cooper/dom14.pdf), which finds immediate
+dominators by walking predecessors in reverse postorder until the idom map stabilizes, avoiding an
+explicit dominator-set representation. Dominance frontiers reuse the same idom map by walking up from
+each join point's predecessors.
+
+Currently, the middle end implements
+[DeadCodeElimination](https://github.com/riogu/henceforth/blob/7ab535fedc0f861998318bf2415476fe366b281f/src/hfs/ir_optimizations.rs#L118)
+and
+[Mem2Reg](https://github.com/riogu/henceforth/blob/7ab535fedc0f861998318bf2415476fe366b281f/src/hfs/ir_optimizations.rs#L166).
+The effect these optimizations have on generated IR are showcased in the following example, which is
+output by henceforth with the `--emit-cfg-dot` flag:
+
+{{< floatcode lang="rust" side="left" caption="Input program for the generated CFG:" offset="-3rem" >}}
+fn factorial: (i32) -> (i32) {
+    let n: i32;
+    let result: i32;
+    &= n;
+    @(1) &= result;
+    while @(n 1 >) {
+        @(result n *) &= result;
+        @(n 1 -) &= n;
+    }
+    @(result);
+}
+
+fn main: () -> () {
+    @(5) &> factorial;
+    if @(@dup 120 ==) {
+        @("factorial\n") &> print
+    }
+    @pop
+}
+
+{{< /floatcode >}}
+
+![](/factorial-O0.png)
+After optimizations:
+![](/factorial.dot.png)
+
+[Mem2Reg](https://github.com/riogu/henceforth/blob/7ab535fedc0f861998318bf2415476fe366b281f/src/hfs/ir_optimizations.rs#L166)
+implements [Cytron et al's SSA
+construction](https://bernsteinbear.com/assets/img/cytron-ssa.pdf), where phis are inserted at the iterated dominance
+frontier of each promotable alloca's stores, then a single dominator-tree walk renames loads/stores to
+SSA values, pushing and popping per-alloca value stacks as it recurses.
+
+[CleanCFG](https://github.com/riogu/henceforth/blob/946bc793b6833627bc8f2bbd6dd6f85109f6bb3d/src/hfs/ir_optimizations.rs#L389)
+complements DCE by removing useless control flow, which gets to do more work if it is ran after DCE. This
+pass folds degenerate branches, deletes empty blocks, merges blocks with a single predecessor, and
+hoistes branches through empty targets.
 
 ## Infrastructure for testing the compiler
 
@@ -272,7 +385,12 @@ optimization tests for sure and add those before writing this part).
 show hfscheck and its directives, with `CHECK-NOT` and `CHECK-COUNT` as the interesting pair.`.hfsir`
 inputs isolating pass tests from the frontend. Maybe the 104 negative tests as diagnostic coverage.
 
-## Further goals
+## Future goals
 
-What wasn't done and why. ADCE, SCCP, GVN, LICM. What I'd do differently, what i did well. Suggest people
-try it.
+What wasn't done and why. ADCE, SCCP, GVN, LICM. 
+## Conclusion
+
+Just conclude on my thoughts on the project, how it was making it, what might've been hard.\
+What I'd do differently, what went well.\
+Add Suggestion for to people try it.
+
