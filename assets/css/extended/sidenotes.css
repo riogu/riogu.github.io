@@ -26,7 +26,10 @@
 
     .sidenote {
         position: absolute;
-        margin-top: calc(-1.6em + 0.1rem);
+        /* --side-offset lets an individual sidenote/sidetext call nudge
+           itself up or down (offset="..." param) without disturbing the
+           shared baseline alignment every other call relies on */
+        margin-top: calc(-1.6em + 0.1rem + var(--side-offset, 0px));
         width: 280px;
         border-left: none;
         padding: 0;

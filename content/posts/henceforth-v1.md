@@ -97,7 +97,7 @@ Overall, the project is split into 3 main sub-projects:
 - The middle end optimization and SSA IR infrastructure
 - The testing infrastructure and what it implements to support our SSA IR
 
-The project provides an interpreter, but it was written with the goal of compiling to executable code.
+The project also provides an interpreter, but it was written with the goal of compiling to executable code.
 This decision was quite central to how a lot of things were implemented, and resulted in interesting
 challenges with how the compiler handles stack logic internally, and also guided some decisions around
 what language features to support.
@@ -110,7 +110,10 @@ It doesn't assume any stack semantics when targeted by a frontend, so it is sort
 project in some ways.
 
 ## The language
-
+{{% sidetext side="right" offset="2em" %}}
+Those interested in knowing more about the language in detail can check out the [Language Reference & Getting
+Started Guide](https://riogu.github.io/henceforth/).
+{{% /sidetext  %}}
 Henceforth supports move `&` vs copy `:` operators from the stack on assignments and function calls. These decide if a
 value on the stack should be copied or popped. It is the main mechanism to interact
 between the imperative and the stack-based side of the language, and pass along values.
@@ -178,7 +181,7 @@ error: expected a stack depth of 1, found a stack depth of 2
 
 ```
 
-Stack keywords exist in the language to allow for stack introspection:
+Various stack keywords exist in the language to allow for stack introspection:
 ```rust
 @(1 2 3)
 @dup      // 1 2 3 3
@@ -235,7 +238,7 @@ fn bubble_sort: ([]i32 i32) -> ([]i32) {
 
 ## Frontend
 
-The [recursive descent parser](https://github.com/riogu/henceforth/blob/main/src/hfs/parser.rs) is
+The [Recursive Descent parser](https://github.com/riogu/henceforth/blob/main/src/hfs/parser.rs) is
 actually quite simple compared to many other languages. One main reason for this is that the parser
 doesn't need to deal with any operator precedence, since that isn't present in stack-based languages like
 Henceforth.
@@ -373,9 +376,9 @@ frontier of each promotable alloca's stores, then a single dominator-tree walk r
 SSA values, pushing and popping per-alloca value stacks as it recurses.
 
 [CleanCFG](https://github.com/riogu/henceforth/blob/946bc793b6833627bc8f2bbd6dd6f85109f6bb3d/src/hfs/ir_optimizations.rs#L389)
-complements DCE by removing useless control flow, which gets to do more work if it is ran after DCE. This
-pass folds degenerate branches, deletes empty blocks, merges blocks with a single predecessor, and
-hoistes branches through empty targets.
+complements DCE well, since it gets to do more work if it is ran after DCE. This pass folds degenerate
+branches, deletes empty blocks, merges blocks with a single predecessor, and hoistes branches through
+empty targets.
 
 ## Infrastructure for testing the compiler
 

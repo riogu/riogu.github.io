@@ -1,0 +1,7 @@
+{{- $side := .Get "side" | default (.Get 0) | default "right" -}}
+{{- $offset := .Get "offset" -}}
+{{- /* the empty span keeps the opening tag from being the only thing on its
+  line once %%-substituted back into the markdown source; a lone tag there
+  matches CommonMark's raw-HTML-block rule, which swallows the rest of
+  .Inner without markdown processing (killing links, emphasis, etc.) */ -}}
+<span class="sidenote sidetext sidenote-{{ $side }}"{{ with $offset }} style="--side-offset: {{ . | safeCSS }};"{{ end }}><span class="sidetext-anchor"></span>{{ .Inner }}</span>
