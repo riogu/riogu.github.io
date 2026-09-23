@@ -335,10 +335,11 @@ dominance frontiers, and RPO/postorder traversal, which are built once per funct
 across passes. 
 
 Dominator computation follows [Cooper, Harvey, and Kennedy's iterative
-algorithm](https://www.cs.tufts.edu/comp/150FP/archive/keith-cooper/dom14.pdf), which finds immediate
-dominators by walking predecessors in reverse postorder until the idom map stabilizes, avoiding an
-explicit dominator-set representation. Dominance frontiers reuse the same idom map by walking up from
-each join point's predecessors.
+algorithm](https://www.cs.tufts.edu/comp/150FP/archive/keith-cooper/dom14.pdf), which visits blocks in
+reverse postorder and sets each block's idom to the common ancestor of its processed predecessors' idoms,
+repeating until nothing changes. This avoids storing explicit dominator sets. Dominance frontiers reuse
+the idom map: from each predecessor of a join point, we walk up the tree until reaching the join point's
+idom, adding it to the frontier of every block along the way.
 
 Currently, the middle end implements
 [DeadCodeElimination](https://github.com/riogu/henceforth/blob/7ab535fedc0f861998318bf2415476fe366b281f/src/hfs/ir_optimizations.rs#L118),
@@ -376,15 +377,14 @@ After optimizations:
 ![](/factorial.dot.png)
 
 [Mem2Reg](https://github.com/riogu/henceforth/blob/7ab535fedc0f861998318bf2415476fe366b281f/src/hfs/ir_optimizations.rs#L166)
-implements [Cytron et al's SSA
-construction](https://bernsteinbear.com/assets/img/cytron-ssa.pdf), where phis are inserted at the iterated dominance
-frontier of each promotable alloca's stores, then a single dominator-tree walk renames loads/stores to
-SSA values, pushing and popping per-alloca value stacks as it recurses.
+implements [Cytron et al's SSA construction](https://bernsteinbear.com/assets/img/cytron-ssa.pdf),
+where phis are inserted at the iterated dominance frontier of each promotable alloca's stores, then a
+single dominator-tree walk renames loads/stores to SSA values, pushing and popping per-alloca value
+stacks as it recurses.
 
 [CleanCFG](https://github.com/riogu/henceforth/blob/946bc793b6833627bc8f2bbd6dd6f85109f6bb3d/src/hfs/ir_optimizations.rs#L389)
-complements DCE quite well, since it gets to do more work if it is run after it. This pass folds degenerate
-branches, deletes empty blocks, merges blocks with a single predecessor, and hoists branches through
-empty targets.
+complements DCE quite well, since it gets to do more work if it is run after it.  This pass deletes empty
+blocks, merges blocks with a single predecessor, and hoists branches through empty targets.
 
 
 ## Infrastructure for testing the compiler
