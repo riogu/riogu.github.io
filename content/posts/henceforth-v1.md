@@ -9,8 +9,8 @@ semantics with stack semantics, implements an optimizing SSA middle end, and mor
 
 ## Overview
 
-After working on this compiler on and off for about a year, me and my friend [João
-Novo](https://github.com/joao-novo) have released a v1.0 for the
+After working on this compiler on and off for about a year, my friend [João
+Novo](https://github.com/joao-novo) and I have released a v1.0 for the
 [Henceforth](https://github.com/riogu/henceforth) compiler.
 Since at this point the project has enough work to be quite interesting, we thought it made sense to
 showcase what was done and have people try it, so we have organized our work and released a first version.
@@ -65,18 +65,17 @@ testsuite](https://github.com/riogu/henceforth/blob/main/tests/compile_tests/tet
   <source src="/videos/tetris.mp4" type="video/mp4">
 </video>
 
-With these examples, people familiar with other stack-based languages will notice a strong presence of imperative elements
-here that is largely uncommon in other languages with this paradigm.
-This is because there are 2 key things that dictate most of the decisions made in terms of stack-based
-features:
+With these examples, people familiar with other stack-based languages will notice a strong presence of
+imperative elements here that is largely uncommon in other languages with this paradigm. This is because
+there are 2 things that dictate most of the decisions made in terms of stack-based features:
 
 First, we found that stack languages usually ask you to adopt the paradigm all at once, largely without
 compromising with other common paradigms, and that tends to make it quite difficult to introduce a
-large amount of people that come from either imperative or functional languages to stack-based languages.
+large number of people that come from either imperative or functional languages to stack-based languages.
 Secondly, these people tend to find stack languages difficult to read and too implicit.
 
-Given these 2 goals, we made a language that bridges the gap between an imperative language (such
-as C) and something like Forth.
+From that, we decided to make a language that bridges the gap between an imperative
+language (such as C) and something like Forth.
 
 The language allows people to experiment with the main features of a stack language (such as explicit
 data flow, multiple returns, values that don't need names) as first class features that come in a
@@ -91,17 +90,17 @@ Compiler](https://www.google.pt/books/edition/Engineering_a_Compiler/xcJrEAAAQBA
 wanted it to be a more informed and structured project than last time.
 {{% /sidenote  %}}, rather than solely focusing on language features. This meant simplifying the frontend language
 in some places and leaving interesting features for later releases in order to actually complete an
-initial minimal version (which seems still took a year).
+initial minimal version (which still took a year!).
 
 Overall, the project is split into 3 main sub-projects:
 - The frontend language (Henceforth) with its AST and type/semantic analysis
 - The middle end optimization and SSA IR infrastructure
 - The testing infrastructure and what it implements to support our SSA IR
 
-The project also provides an interpreter, but it was written with the goal of compiling to executable code.
-This decision was quite central to how a lot of things were implemented, and resulted in interesting
-challenges with how the compiler handles stack logic internally, and also guided some decisions around
-what language features to support.
+The project also provides an interpreter, but it primarily targets a [Cranelift](https://cranelift.dev)
+backend and was written with the goal of compiling to executable code. This decision was quite central to
+how a lot of things were implemented, and resulted in interesting challenges with how the compiler
+handles stack logic internally, and also guided some decisions around what language features to support.
 
 It is relevant to note that the middle end isn't really tied to the frontend language.
 While the features it supports were chosen in order to be compatible with the goals of the frontend
@@ -125,7 +124,7 @@ let c: i32; @(a)  := c;  // stack value is copied, the stack still has the value
 let b: i32;       &= b;  //  we pop `a` from the stack (which is now empty)
 ```
 
-Functions parameters specify how much of the stack of the caller we can access when calling it. The
+Function parameters specify how much of the stack of the caller we can access when calling it. The
 return type specifies the state the stack has to be in after the function returns.
 ```rust 
 fn divmod: (i32 i32) -> (i32 i32) {
@@ -168,15 +167,15 @@ fn f: (bool bool bool) -> (i32) {
 Output:
 ```j
 error: expected i32 on stack for return, found f32
-  --> tests/compile_tests/pow.hfs:11:13
+  --> tests/compile_tests/f.hfs:9:13
    |
-11 |             return;   // the return keyword lets functions end early
+9  |             return;   // the return keyword lets functions end early
    |             ^^^^^^
    |
 error: expected a stack depth of 1, found a stack depth of 2
-  --> tests/compile_tests/pow.hfs:11:9
+  --> tests/compile_tests/f.hfs:13:9
    |
-11 |         @(1 2)  // leaves one value too many
+13 |         @(1 2)  // leaves one value too many
    |         ^^^^^^
    |
 
@@ -193,24 +192,25 @@ Arrays are supported as well:
 ```rust
 fn sum: ([]i32 i32) -> (i32) {
     let n: i32; &= n;
-
+    let arr: [n]i32; &= arr;
     let i: i32; @(0) &= i;
     @(0)  // the running total, unnamed
     while @(i n !=) {
-        @(i 1 +) &= i;  // reads arr[i] and adds it to the total
+        @(arr i [] +);  // reads arr[i] and adds it to the total
+        @(i 1 +) &= i;
     }
 }
 
 fn main: () -> () {
     let arr: [5]i32;
-    @([0 1 2 3 4 5]) &= arr;  // create an array literal on the stack
-    @(arr 5) &> sum &> print_i32;
+    @([0 1 2 3 4]) &= arr;  // create an array literal on the stack
+    @(arr 5) &> sum &> print;
 }
 ```
 Semantically, putting values on the `@(...)` stack will always result in "copying" them onto the stack,
 so no aliasing ever happens. Internally, nothing is ever actually lowered to stack push and pop
 operations, so if stack values aren't used they aren't lowered to anything (this is explained in the
-[lowering section](/posts/henceforth-v1/#lowering-ast-to-cfg-to-mir)).
+[lowering section](/posts/henceforth-v1/#lowering-to-a-cfg-and-ssa-ir)).
 
 Henceforth also supports runtime-sized locals, and supports writing `[]i32` in functions so you don't have to
 specify the size of an array in a function like `bubble_sort` (the array size is passed on the 2nd
@@ -259,7 +259,7 @@ stack related semantics.
 
 ## Lowering to a CFG and SSA IR
 
-In practice, henceforth never does any "push" and "pop" from any real stack, all of these operations are
+In practice, Henceforth never does any "push" and "pop" from any real stack, all of these operations are
 interpreted at compile time. For example:
 ```rust 
 let foo: i32;
@@ -269,6 +269,11 @@ let bar: i32;
 ```
 
 Would emit this IR:
+{{% sidetext side="left" offset="3em" %}}
+Note that the frontend emits memory-form IR with alloca/store pairs and
+[Mem2Reg](https://github.com/riogu/henceforth/blob/7ab535fedc0f861998318bf2415476fe366b281f/src/hfs/ir_optimizations.rs#L166)
+promotes it later, similarly to what LLVM does.
+{{% /sidetext  %}}
 ```rust
 start_1:
   %0 = i32 1
@@ -341,7 +346,7 @@ Currently, the middle end implements
 and
 [Mem2Reg](https://github.com/riogu/henceforth/blob/7ab535fedc0f861998318bf2415476fe366b281f/src/hfs/ir_optimizations.rs#L166).
 The effect these optimizations have on generated IR are showcased in the following example, which is
-output by henceforth with the `--emit-cfg-dot` flag:
+output by Henceforth with the `--emit-cfg-dot` flag:
 
 {{< floatcode lang="rust" side="left" caption="Input program for the generated CFG:" offset="-2.6rem" >}}
 fn factorial: (i32) -> (i32) {
@@ -377,8 +382,8 @@ frontier of each promotable alloca's stores, then a single dominator-tree walk r
 SSA values, pushing and popping per-alloca value stacks as it recurses.
 
 [CleanCFG](https://github.com/riogu/henceforth/blob/946bc793b6833627bc8f2bbd6dd6f85109f6bb3d/src/hfs/ir_optimizations.rs#L389)
-complements DCE quite well, since it gets to do more work if it is ran after it. This pass folds degenerate
-branches, deletes empty blocks, merges blocks with a single predecessor, and hoistes branches through
+complements DCE quite well, since it gets to do more work if it is run after it. This pass folds degenerate
+branches, deletes empty blocks, merges blocks with a single predecessor, and hoists branches through
 empty targets.
 
 
@@ -388,7 +393,7 @@ Henceforth comes with `hfscheck`, which is a small  test framework like LLVM's F
 write a `.hfs` or `.hfsir` program and annotate it with `//? CHECK` directives, then the runner asserts
 those patterns show up (or don't) in the compiler's output.
 
-One important usecase is optimization tests. A test can start from lowered IR using an `.hfsir` file, so a
+One important use case is optimization tests. A test can start from lowered IR using an `.hfsir` file, so a
 pass can be checked in isolation without depending on what the frontend happens to lower a given `.hfs`
 program to:
 
@@ -445,7 +450,7 @@ general, but this is what we managed to implement over the last year with the fr
 return to this codebase in the future to test out new optimizations in my own SSA middle end,
 and I'm very happy that I have a stable project where I get to play around with compiler related ideas.
 
-The language itself is an interesting novel middle ground between imperative and stack
+The language itself is an interesting middle ground between imperative and stack
 languages, and I think it offers an interesting mixed approach that works surprisingly well for
 writing certain kinds of programs.
 
