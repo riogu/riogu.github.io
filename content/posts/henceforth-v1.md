@@ -1,5 +1,5 @@
 +++
-date = '2026-09-13T08:13:06+01:00'
+date = '2026-09-23T08:13:06+01:00'
 draft = true
 title = "Henceforth - SSA compiler for an imperative stack-based language"
 tags = [ 'Rust', 'SSA', 'Compiler Optimizations', 'Henceforth']
@@ -44,11 +44,12 @@ fn pow: (/* base */ i32 /* exp */ i32) -> (i32) {
 @(2 10) &> pow;
 ```
 {{< floatcode lang="rust" side="left" offset="-25rem"  caption="For those more used to stack-based languages, this function could also be written using stack operations:" >}}
-fn pow: (/* base */ i32 /* exp */ i32) -> (i32) {
+fn pow: (i32 i32) -> (i32) {
     let i: i32; @(0) &= i; 
     @(1 @rrot)
     while @(@dup i !=) {
-        @(@rrot @dup @rot * @rrot @swap)
+        @(@rrot @dup @rot *)
+        @(@rrot @swap)
         @(i 1 +) &= i;
     }
     @pop @pop

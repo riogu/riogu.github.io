@@ -1,0 +1,8 @@
+/* experiment: wrap long lines in the floatcode sidebar blocks only, to see
+   how it looks there. normal code blocks keep the theme's default
+   horizontal scroll untouched. */
+/* .md-content .float-code pre code { */
+/*   white-space: pre-wrap; */
+/*   overflow-x: hidden; */
+/*   word-break: break-word; */
+/* } */
