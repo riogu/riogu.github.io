@@ -1,10 +1,14 @@
 +++
 date = '2026-09-23T08:13:06+01:00'
-draft = true
+draft = false
 title = "Henceforth - SSA compiler for an imperative stack-based language"
 tags = [ 'Rust', 'SSA', 'Compiler Optimizations', 'Henceforth']
 summary = """Notes about a statically typed stack-based language that bridges imperative
 semantics with stack semantics, implements an optimizing SSA middle end, and more."""
+
+[build]
+  list = 'never'
+  render = 'always'
 +++
 
 ## Overview
@@ -310,16 +314,7 @@ our SSA IR. It is easy to see how this extends to other examples.
 
 ## IR as a textual format
 
-`NOTE:` João this is for you to write, claude wrote this about your code, i didn't fact check it, ill
-leave it up to you. 
-
-Start from the mundane problem (the dump format became a test API, so it must be
-parseable, so printer and parser will drift), then the reframing (one grammar, two directions), then the
-mechanism. `iso`, `product`, `alt` as the three primitives everything else derives from. `syntax_phi` as
-the single worked example, with printer output and parsed-back input side by side. Then the honest parts:
-isos are partial (spans, `array_len`, `is_move` dropped), `collect_names` is a non-invertible pre-pass
-that handles forward references, error reporting only exists in the parse direction. Round-trip property
-if it's actually tested.
+`NOTE:` João this is for you to write, talk about your invertible syntax thing or whatever it is.
 
 ## Optimizations and middle end work
 
