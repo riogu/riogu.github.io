@@ -9,9 +9,8 @@ semantics with stack semantics, implements an optimizing SSA middle end, and mor
 
 ## Overview
 
-After working on this compiler on and off for about a year, my friend [João
-Novo](https://github.com/joao-novo) and I have released a v1.0 for the
-[Henceforth](https://github.com/riogu/henceforth) compiler.
+After working on the [Henceforth](https://github.com/riogu/henceforth) compiler on and off for about a
+year, my friend [João Novo](https://github.com/joao-novo) and I have released a v1.0 for it.
 Since at this point the project has enough work to be quite interesting, we thought it made sense to
 showcase what was done and have people try it, so we have organized our work and released a first version.
 
@@ -167,15 +166,15 @@ fn f: (bool bool bool) -> (i32) {
 Output:
 ```j
 error: expected i32 on stack for return, found f32
-  --> tests/compile_tests/f.hfs:9:13
+  --> tests/compile_tests/f.hfs:10:13
    |
-9  |             return;   // the return keyword lets functions end early
+10 |             return;   // the return keyword lets functions end early
    |             ^^^^^^
    |
 error: expected a stack depth of 1, found a stack depth of 2
-  --> tests/compile_tests/f.hfs:13:9
+  --> tests/compile_tests/f.hfs:14:9
    |
-13 |         @(1 2)  // leaves one value too many
+14 |         @(1 2)  // leaves one value too many
    |         ^^^^^^
    |
 
@@ -196,7 +195,7 @@ fn sum: ([]i32 i32) -> (i32) {
     let i: i32; @(0) &= i;
     @(0)  // the running total, unnamed
     while @(i n !=) {
-        @(arr i [] +);  // reads arr[i] and adds it to the total
+        @(arr i [] +)  // reads arr[i] and adds it to the total
         @(i 1 +) &= i;
     }
 }
@@ -342,7 +341,8 @@ explicit dominator-set representation. Dominance frontiers reuse the same idom m
 each join point's predecessors.
 
 Currently, the middle end implements
-[DeadCodeElimination](https://github.com/riogu/henceforth/blob/7ab535fedc0f861998318bf2415476fe366b281f/src/hfs/ir_optimizations.rs#L118)
+[DeadCodeElimination](https://github.com/riogu/henceforth/blob/7ab535fedc0f861998318bf2415476fe366b281f/src/hfs/ir_optimizations.rs#L118),
+[CleanCFG](https://github.com/riogu/henceforth/blob/946bc793b6833627bc8f2bbd6dd6f85109f6bb3d/src/hfs/ir_optimizations.rs#L389)
 and
 [Mem2Reg](https://github.com/riogu/henceforth/blob/7ab535fedc0f861998318bf2415476fe366b281f/src/hfs/ir_optimizations.rs#L166).
 The effect these optimizations have on generated IR are showcased in the following example, which is

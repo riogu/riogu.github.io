@@ -1,0 +1,12 @@
+.post-content {
+  text-align: justify;
+  hyphens: auto;
+}
+
+/* code/pre don't wrap in a way justify would affect anyway, but keep them
+   out explicitly so a stray inline `code` span never gets stretched */
+.post-content pre,
+.post-content code {
+  text-align: left;
+  hyphens: none;
+}
