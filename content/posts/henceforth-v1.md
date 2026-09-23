@@ -342,7 +342,7 @@ and
 The effect these optimizations have on generated IR are showcased in the following example, which is
 output by henceforth with the `--emit-cfg-dot` flag:
 
-{{< floatcode lang="rust" side="left" caption="Input program for the generated CFG:" offset="-3rem" >}}
+{{< floatcode lang="rust" side="left" caption="Input program for the generated CFG:" offset="-2.6rem" >}}
 fn factorial: (i32) -> (i32) {
     let n: i32;
     let result: i32;
@@ -376,24 +376,79 @@ frontier of each promotable alloca's stores, then a single dominator-tree walk r
 SSA values, pushing and popping per-alloca value stacks as it recurses.
 
 [CleanCFG](https://github.com/riogu/henceforth/blob/946bc793b6833627bc8f2bbd6dd6f85109f6bb3d/src/hfs/ir_optimizations.rs#L389)
-complements DCE well, since it gets to do more work if it is ran after DCE. This pass folds degenerate
+complements DCE quite well, since it gets to do more work if it is ran after it. This pass folds degenerate
 branches, deletes empty blocks, merges blocks with a single predecessor, and hoistes branches through
 empty targets.
 
+
 ## Infrastructure for testing the compiler
 
-`NOTE:` Joao you can do this if you want, otherwise ill do it later (i will at least add stuff about the
-optimization tests for sure and add those before writing this part).
+Henceforth comes with `hfscheck`, which is a small  test framework like LLVM's FileCheck or DejaGNU. You
+write a `.hfs` or `.hfsir` program and annotate it with `//? CHECK` directives, then the runner asserts
+those patterns show up (or don't) in the compiler's output.
 
-show hfscheck and its directives, with `CHECK-NOT` and `CHECK-COUNT` as the interesting pair.`.hfsir`
-inputs isolating pass tests from the frontend. Maybe the 104 negative tests as diagnostic coverage.
+One important usecase is optimization tests. A test can start from lowered IR using an `.hfsir` file, so a
+pass can be checked in isolation without depending on what the frontend happens to lower a given `.hfs`
+program to:
+
+```rs
+//? OPT -O0 -iterative
+fn fizz_buzz: (i32) -> (str) {
+    ...
+}
+//? CHECK FN "fizz_buzz"
+//? CHECK BLOCK "start_2"
+//? CHECK NOT "alloca"
+```
+
+For example, `CHECK NOT` asserts something is gone after a pass runs (such as no leftover `alloca` after
+Mem2Reg), and `CHECK COUNT n` asserts an exact number of occurrences exist. Together they let a test
+assert the shape of the output, which allows for better coverage of what a pass actually does.
+
+Henceforth also has various failure tests to provide diagnostic coverage, which use the `ERROR` directive
+to assert that a specific compiler error fires on a specific line:
+```rust
+fn main: () -> () {
+    let a: i32;
+    @(true) &= a; //? ERROR "expected i32 found bool"
+}
+```
+
 
 ## Future goals
 
-What wasn't done and why. ADCE, SCCP, GVN, LICM. 
+The middle end only implements DCE, Mem2Reg and CleanCFG because the goal was to first make a minimal
+proof of concept set of passes to test the infrastructure and the APIs of the compiler, and only work on
+adding more optimizations once we had a solid base to work on. The main goal was to deliver a "minimal
+viable compiler" from the point of view of the APIs and the compiler's pipeline itself.
+
+We aimed for the language itself to be quite minimal on this initial release, so complex features like
+user types or pattern matching weren't added, although we did get a lot of work done on tuples and using
+them as "views" of the stack. Support for pointers and the syntax for them was also added, but we
+ultimately decided not to include it in this release, as they went a little bit against the patterns we
+wanted to be used in the language.
+
+Currently, development will be going on a break so I can focus on the PhD prep phase at Saarland, and
+João has his Masters to work on as well. Regardless, we might return to the project in the future and
+continue developing the language and the optimizations.
+
 ## Conclusion
 
-Just conclude on my thoughts on the project, how it was making it, what might've been hard.\
-What I'd do differently, what went well.\
-Add Suggestion for to people try it.
+Henceforth was a really interesting project to work on. It was my second full compiler implementation,
+and I was very happy to be able to try my hand at implementing a compiler again, but this time spend
+most of my effort in designing good APIs and making the codebase scalable. Over the year we worked on it,
+I always felt it was easy to return to the codebase because of that, and I'm quite happy with the result.
+
+I would've liked to implement more optimizations and expand the capabilities of our SSA middle end in
+general, but this is what we managed to implement over the last year with the free time we had. I hope to
+return to this codebase in the future to test out new optimizations in my own SSA middle end,
+and I'm very happy that I have a stable project where I get to play around with compiler related ideas.
+
+The language itself is an interesting novel middle ground between imperative and stack
+languages, and I think it offers an interesting mixed approach that works surprisingly well for
+writing certain kinds of programs.
+
+For anyone interested in trying out the language or looking at the compiler, you can find it on
+[Github](https://github.com/riogu/henceforth), or you can go through the
+[Language Reference & Getting Started Guide](https://riogu.github.io/henceforth/).
 

@@ -10,18 +10,23 @@
 }
 
 .float-code {
-  font-size: 0.95em;
+  font-size: 0.9em;
 }
 
-/* mirrors the .sidenote breakpoint/mechanism in sidenotes.css: past 1300px
-   there's enough margin around .post-content to pull the code (and its
-   caption, as one unit so they can't drift apart and overlap other
-   margin content) out of the text column entirely instead of squeezing a
-   float into it */
+/* mirrors the .sidenote breakpoint/mechanism in sidenotes.css, but with its
+   own (higher) min-width: this box is wider than .sidenote's 280px, so
+   reusing sidenote's 1300px breakpoint left a dead zone where the box had
+   already gone absolute/sidebar but didn't actually have enough margin to
+   fit, and got clipped at the viewport edge instead of falling back to
+   normal in-flow text (measured empirically at the current 300px width:
+   clipped through ~1410px, clean by 1420px). If width below grows further,
+   re-check this the same way — resize the browser (or zoom, which shrinks
+   the effective viewport the same way) down through this breakpoint and
+   watch for clipping just above it. */
 @media (min-width: 1300px) {
   .float-code-wrap {
     position: absolute;
-    width: 325px;
+    width: 300px;
     margin: 0;
     /* per-instance nudge: pass offset="-1.5rem" (or similar) to the
        shortcode to correct where it lands next to the text beside it */
