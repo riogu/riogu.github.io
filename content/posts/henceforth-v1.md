@@ -435,10 +435,11 @@ continue developing the language and the optimizations.
 
 ## Conclusion
 
-Henceforth was a really interesting project to work on. It was my second full compiler implementation,
-and I was very happy to be able to try my hand at implementing a compiler again, but this time spend
-most of my effort in designing good APIs and making the codebase scalable. Over the year we worked on it,
-I always felt it was easy to return to the codebase because of that, and I'm quite happy with the result.
+Henceforth was a great project to work on to further improve my understanding of compilers. It was my
+second full compiler implementation, and I was very happy to be able to try my hand at implementing a
+compiler again, but this time spend most of my effort in designing good APIs and making the codebase
+scalable. Over the year we worked on it, I always felt it was easy to return to the codebase because of
+that, and I'm quite happy with the result.
 
 I would've liked to implement more optimizations and expand the capabilities of our SSA middle end in
 general, but this is what we managed to implement over the last year with the free time we had. I hope to
@@ -446,7 +447,7 @@ return to this codebase in the future to test out new optimizations in my own SS
 and I'm very happy that I have a stable project where I get to play around with compiler related ideas.
 
 The language itself is an interesting middle ground between imperative and stack
-languages, and I think it offers an interesting mixed approach that works surprisingly well for
+languages, and I think it offers a good mixed approach that works surprisingly well for
 writing certain kinds of programs.
 
 For anyone interested in trying out the language or looking at the compiler, you can find it on
