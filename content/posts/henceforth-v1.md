@@ -2,7 +2,7 @@
 date = '2026-09-23T08:13:06+01:00'
 draft = false
 title = "Henceforth - SSA compiler for an imperative stack-based language"
-tags = [ 'Rust', 'SSA', 'Compiler Optimizations', 'Henceforth']
+tags = [ 'Rust', 'SSA', 'Compiler Optimizations', 'Stack-based languages']
 summary = """Notes about a statically typed stack-based language that bridges imperative
 semantics with stack semantics, implements an optimizing SSA middle end, and more."""
 
@@ -14,18 +14,16 @@ semantics with stack semantics, implements an optimizing SSA middle end, and mor
 ## Overview
 
 After working on the [Henceforth](https://github.com/riogu/henceforth) compiler on and off for about a
-year, my friend [João Novo](https://github.com/joao-novo) and I have released a v1.0 for it.
-Since at this point the project has enough work to be quite interesting, we thought it made sense to
-showcase what was done and have people try it, so we have organized our work and released a first version.
+year, my friend [João Novo](https://github.com/joao-novo) and I have organized our work and released a
+v1.0.
 
 Henceforth is a [stack-based language](https://en.wikipedia.org/wiki/Stack-oriented_programming) where
-stack semantics (as well as types) are verified at compile time rather than relying on interpreted
-semantics, which are commonly present in stack-based languages in order to resolve some challenges{{%
-sidenote side="right" %}} In Forth, for example, a loop can change the depth of the stack however it
-wants, so the stack depth depends on the trip count. If you allowed that in a compiled language, you
-wouldn't know how many elements to return from a function! {{% /sidenote %}} that arise with the
-paradigm. A code example would look something like this:
-
+stack effects and types are verified at compile time rather than relying on runtime features, which are
+commonly present in stack-based languages in order to resolve some challenges{{% sidenote side="right"
+%}} In Forth, for example, a loop can change the depth of the stack however it wants, so the stack depth
+depends on the trip count. If you allowed that in a compiled language, you wouldn't know how many
+elements to return from a function! {{% /sidenote %}} that arise with the paradigm. A code example would
+look something like this:
 
 ```rust
 fn pow: (/* base */ i32 /* exp */ i32) -> (i32) {
@@ -68,26 +66,26 @@ testsuite](https://github.com/riogu/henceforth/blob/main/tests/compile_tests/tet
   <source src="/videos/tetris.mp4" type="video/mp4">
 </video>
 
-With these examples, people familiar with other stack-based languages will notice a strong presence of
-imperative elements here that is largely uncommon in other languages with this paradigm. This is because
-there are 2 things that dictate most of the decisions made in terms of stack-based features:
+### Project goals
 
-First, we found that stack languages usually ask you to adopt the paradigm all at once, largely without
-compromising with other common paradigms, and that tends to make it quite difficult to introduce a
+With these examples, people familiar with other stack-based languages will notice a strong presence of
+imperative elements here that is largely uncommon in other languages with this paradigm. There are a
+couple of reasons for that:
+
+First, stack languages usually ask you to adopt the paradigm all at once, largely without
+compromising with other common paradigms, and that makes it difficult to introduce a
 large number of people that come from either imperative or functional languages to stack-based languages.
 Secondly, these people tend to find stack languages difficult to read and too implicit.
 
 From that, we decided to make a language that bridges the gap between an imperative
 language (such as C) and something like Forth.
-
 The language allows people to experiment with the main features of a stack language (such as explicit
 data flow, multiple returns, values that don't need names) as first class features that come in a
 familiar format.
-Other details of the language will be better explained in the next section.
+
 
 Personally, another goal I had for the project this time around was to try to write a scalable and modular
-compiler 
-{{% sidenote side="left" %}}
+compiler{{% sidenote side="left" %}}
 While implementing this compiler I went through literature like [Cooper & Torczon's Engineering a
 Compiler](https://www.google.pt/books/edition/Engineering_a_Compiler/xcJrEAAAQBAJ?hl=pt-PT&gbpv=0), as I
 wanted it to be a more informed and structured project than last time.
@@ -95,22 +93,37 @@ wanted it to be a more informed and structured project than last time.
 in some places and leaving interesting features for later releases in order to actually complete an
 initial minimal version (which still took a year!).
 
-Overall, the project is split into 3 main sub-projects:
-- The frontend language (Henceforth) with its AST and type/semantic analysis
-- The middle end optimization and SSA IR infrastructure
-- The testing infrastructure and what it implements to support our SSA IR
+In my [previous compiler](https://github.com/riogu/fumo-compiler), I had to redo some sections many times
+as I discovered the challenges and needs of each part of the compiler (such as semantic analysis,
+lowering to a CFG, etc). The codebase itself also made a lot of assumptions about what previous phases of
+the compiler did during a pass, and that meant that returning to it after a few months was very
+difficult, as a lot of these assumptions weren't explicit or enforced.
 
-The project also provides an interpreter, but it primarily targets a [Cranelift](https://cranelift.dev)
-backend and was written with the goal of compiling to executable code. This decision was quite central to
-how a lot of things were implemented, and resulted in interesting challenges with how the compiler
-handles stack logic internally, and also guided some decisions around what language features to support.
+<!-- Overall, the project is split into 3 main sub-projects: -->
+<!-- - The frontend language (Henceforth) with its AST and type/semantic analysis -->
+<!-- - The middle end optimization and SSA IR infrastructure -->
+<!-- - The testing infrastructure and what it implements to support our SSA IR -->
 
-It is relevant to note that the middle end isn't really tied to the frontend language.
-While the features it supports were chosen in order to be compatible with the goals of the frontend
-language, it can naturally be used for other frontends if we choose to write them later on, which was a
-big goal as well.
-It doesn't assume any stack semantics when targeted by a frontend, so it is sort of its own standalone
-project in some ways.
+
+### Why Cranelift instead of LLVM
+
+While the project provides an interpreter (mainly for testing purposes), Henceforth primarily targets
+an AOT [Cranelift](https://cranelift.dev) backend.
+<!-- This decision was quite central to how a lot of things were implemented, and resulted in interesting -->
+<!-- challenges with how the compiler handles stack logic internally, and also guided some decisions around -->
+<!-- what language features to support. -->
+
+Unlike last time, I chose not to use LLVM as a target. First of all, Henceforth is written in Rust, and
+we were interested in using a Rust-native backend. Secondly, we wanted a minimal dependency that could
+support various different targets, and wanted the project to remain small where possible. Additionally,
+Henceforth implements its own optimizing SSA middle end, so we would have turned off most of LLVM's
+optimizations anyway.
+
+Cranelift acts as a convenient way to allow us to compile to multiple targets while still letting
+Henceforth implement its own middle end optimizations on top of it.
+In the future it would be nice to get rid of Cranelift as a dependency as well, but that would require a
+lot more time and work.
+
 
 ## The language
 {{% sidetext side="right" offset="2em" %}}
@@ -210,6 +223,7 @@ fn main: () -> () {
     @(arr 5) &> sum &> print;
 }
 ```
+
 Semantically, putting values on the `@(...)` stack will always result in "copying" them onto the stack,
 so no aliasing ever happens. Internally, nothing is ever actually lowered to stack push and pop
 operations, so if stack values aren't used they aren't lowered to anything (this is explained in the
@@ -240,9 +254,11 @@ fn bubble_sort: ([]i32 i32) -> ([]i32) {
 }
 ```
 
+`NOTE (fix):` `[&]=` appears here for the first time with no explanation. Add one line on what it pops (value, then index?) or a comment on the first use.
+
 ## Frontend
 
-The [Recursive Descent parser](https://github.com/riogu/henceforth/blob/main/src/hfs/parser.rs) is
+The [recursive descent parser](https://github.com/riogu/henceforth/blob/main/src/hfs/parser.rs) is
 actually quite simple compared to many other languages. One main reason for this is that the parser
 doesn't need to deal with any operator precedence, since that isn't present in stack-based languages like
 Henceforth.
@@ -255,10 +271,14 @@ semantics. This is the core idea that makes it so most stack operations don't re
 The other half of stack simulation involves keeping track of the depth and types of each control flow
 branch, as shown in [this earlier example](#stack-depth-example).
 
+`NOTE (opinion):` You say most of the interesting work went into the stack analyzer, then spend two sentences on it. This is the core novelty of the compiler, so it deserves the most detail. What was hard? Reconciling stack states where branches join, loops whose bodies must be stack-neutral, `return` in the middle of nested blocks, error reporting that points at the right line? A small before/after (stack code in, reconstructed imperative AST out) would also help. It's the one transformation readers can't picture on their own.
+
 The next section showcases how the [IR
 lowerer](https://github.com/riogu/henceforth/blob/main/src/hfs/ir_lowerer.rs) pass takes our AST from the
 previous pass and runs another round of stack simulation, in order to output SSA IR that is agnostic to any
 stack related semantics.
+
+`NOTE (opinion):` Why does the lowerer need a second round of simulation instead of the analyzer annotating the AST once? If that was a deliberate tradeoff (simpler passes, no stored stack state), saying so is a good design opinion. If you'd change it now, saying that is good too.
 
 ## Lowering to a CFG and SSA IR
 
@@ -267,7 +287,7 @@ interpreted at compile time. For example:
 ```rust 
 let foo: i32;
 let bar: i32;
-@(3 4 *) := foo; // reads the stack and leaves it untouched
+@(3 4 *) := foo; // copies the top of the stack into foo
 &= bar; // pops the stack and reads the values
 ```
 
@@ -291,7 +311,8 @@ start_1:
 ```
 
 The compiler simulates the stack in order to associate each usage of a stack value to its user, which is
-why the IR doesn't have to emit any stack operations, all uses are solved during lowering.\
+why the IR doesn't have to emit any stack operations, all uses are solved during lowering.
+
 Note that, since the first `:= foo` is a copy, the next `&= bar` statement will use the same result
 computed for `foo` without applying any optimizations.
 
@@ -310,7 +331,7 @@ start_1:
 ```
 Stack operations like `@rot`, `@pop`, `@swap` and others are frontend constructs that exist purely in the
 compiler, and once they are interpreted, there is no real concept of a stack by the time we are emitting
-our SSA IR. It is easy to see how this extends to other examples.
+our SSA IR.
 
 ## IR as a textual format
 
@@ -326,23 +347,30 @@ part of the middle end, such as def-use chains with
 [RAUW](https://github.com/riogu/henceforth/blob/7ab535fedc0f861998318bf2415476fe366b281f/src/hfs/ir_analysis.rs#L52),
 a [dominator
 tree](https://github.com/riogu/henceforth/blob/7ab535fedc0f861998318bf2415476fe366b281f/src/hfs/ir_analysis.rs#L149),
-dominance frontiers, and RPO/postorder traversal, which are built once per function and then reused
-across passes. 
+dominance frontiers, RPO/postorder traversal, and 
+[LoopInfo](https://github.com/riogu/henceforth/blob/946bc793b6833627bc8f2bbd6dd6f85109f6bb3d/src/hfs/ir_analysis.rs#L373)
+construction, which are built once per function and then reused across passes. 
 
-Dominator computation follows [Cooper, Harvey, and Kennedy's iterative
-algorithm](https://www.cs.tufts.edu/comp/150FP/archive/keith-cooper/dom14.pdf), which visits blocks in
-reverse postorder and sets each block's idom to the common ancestor of its processed predecessors' idoms,
-repeating until nothing changes. This avoids storing explicit dominator sets. Dominance frontiers reuse
-the idom map: from each predecessor of a join point, we walk up the tree until reaching the join point's
-idom, adding it to the frontier of every block along the way.
+It is relevant to note that the middle end isn't really tied to the frontend language. Since it doesn't
+assume any stack semantics when targeted by a frontend, it works as its own standalone project, and could
+be used for other frontends in the future.
+
+### Mutable IR and def-use chains in Rust
+
+`NOTE (opinion):` The post is tagged Rust, and a mutable graph IR with def-use chains and RAUW is a notoriously awkward thing to build in Rust. How did you represent it (arenas and indices, `Rc<RefCell>`, something else), and would you do it the same way again? Rust readers will care about this more than almost anything else in the section, and it's exactly the kind of API design you say was the focus of the project.
+
+
+### Implemented optimizations
 
 Currently, the middle end implements
 [DeadCodeElimination](https://github.com/riogu/henceforth/blob/7ab535fedc0f861998318bf2415476fe366b281f/src/hfs/ir_optimizations.rs#L118),
 [CleanCFG](https://github.com/riogu/henceforth/blob/946bc793b6833627bc8f2bbd6dd6f85109f6bb3d/src/hfs/ir_optimizations.rs#L389)
 and
 [Mem2Reg](https://github.com/riogu/henceforth/blob/7ab535fedc0f861998318bf2415476fe366b281f/src/hfs/ir_optimizations.rs#L166).
-The effect these optimizations have on generated IR are showcased in the following example, which is
+The effect these optimizations have on generated IR is showcased in the following example, which is
 output by Henceforth with the `--emit-cfg-dot` flag:
+
+`NOTE (fix):` The CleanCFG links use commit `946bc79` while the rest use `7ab535f`. Pin all permalinks to the v1.0 tag.
 
 {{< floatcode lang="rust" side="left" caption="Input program for the generated CFG:" offset="-2.6rem" >}}
 fn factorial: (i32) -> (i32) {
@@ -371,11 +399,14 @@ fn main: () -> () {
 After optimizations:
 ![](/factorial.dot.png)
 
+Dominators are computed with [Cooper, Harvey, and Kennedy's iterative
+algorithm](https://www.cs.tufts.edu/comp/150FP/archive/keith-cooper/dom14.pdf), and dominance frontiers
+are derived from the resulting idom tree.
+
 [Mem2Reg](https://github.com/riogu/henceforth/blob/7ab535fedc0f861998318bf2415476fe366b281f/src/hfs/ir_optimizations.rs#L166)
-implements [Cytron et al's SSA construction](https://bernsteinbear.com/assets/img/cytron-ssa.pdf),
-where phis are inserted at the iterated dominance frontier of each promotable alloca's stores, then a
-single dominator-tree walk renames loads/stores to SSA values, pushing and popping per-alloca value
-stacks as it recurses.
+implements [Cytron et al.'s SSA construction](https://bernsteinbear.com/assets/img/cytron-ssa.pdf),
+inserting phis at the iterated dominance frontier of each promotable alloca's stores and renaming in a
+single dominator tree walk.
 
 [CleanCFG](https://github.com/riogu/henceforth/blob/946bc793b6833627bc8f2bbd6dd6f85109f6bb3d/src/hfs/ir_optimizations.rs#L389)
 complements DCE quite well, since it gets to do more work if it is run after it.  This pass deletes empty
@@ -384,13 +415,18 @@ blocks, merges blocks with a single predecessor, and hoists branches through emp
 
 ## Infrastructure for testing the compiler
 
-Henceforth comes with `hfscheck`, which is a small  test framework like LLVM's FileCheck or DejaGNU. You
+Henceforth comes with `hfscheck`, which is a small test framework like LLVM's FileCheck or DejaGNU. You
 write a `.hfs` or `.hfsir` program and annotate it with `//? CHECK` directives, then the runner asserts
 those patterns show up (or don't) in the compiler's output.
 
-One important use case is optimization tests. A test can start from lowered IR using an `.hfsir` file, so a
-pass can be checked in isolation without depending on what the frontend happens to lower a given `.hfs`
-program to:
+Pattern-based checks are a good way to add coverage to a language implementation and to
+optimizations and avoid having tests break from unrelated changes, since they assert on the shape of the
+test and what it is about rather than match exact outputs. It was also something we could implement in the
+scope of the project, so we decided to make `hfscheck`.
+
+One important use case is optimization tests. A test can start from lowered IR using an
+`.hfsir` file, so a pass can be checked in isolation without depending on what the frontend happens to
+lower a given `.hfs` program to:
 
 ```rs
 //? OPT -O0 -iterative
@@ -420,37 +456,56 @@ fn main: () -> () {
 
 The middle end only implements DCE, Mem2Reg and CleanCFG because the goal was to first make a minimal
 proof of concept set of passes to test the infrastructure and the APIs of the compiler, and only work on
-adding more optimizations once we had a solid base to work on. The main goal was to deliver a "minimal
-viable compiler" from the point of view of the APIs and the compiler's pipeline itself.
+adding more optimizations once we had a solid base to work on. 
+GVN and inlining would be interesting to work on next when I have the time. 
+
+
+### Postponed features
 
 We aimed for the language itself to be quite minimal on this initial release, so complex features like
 user types or pattern matching weren't added, although we did get a lot of work done on tuples and using
-them as "views" of the stack. Support for pointers and the syntax for them was also added, but we
+them as "views" of the stack:
+
+```rust
+// add example of tuples here
+```
+Support for pointers and the syntax for them was also added, but we
 ultimately decided not to include it in this release, as they went a little bit against the patterns we
 wanted to be used in the language.
 
-Currently, development will be going on a break so I can focus on the PhD prep phase at Saarland, and
-João has his Masters to work on as well. Regardless, we might return to the project in the future and
-continue developing the language and the optimizations.
+```rust
+// add example of pointers here
+```
+
+`NOTE (opinion):` This is the most opinionated decision in the post and it's written the most passively. What patterns did pointers break? My guess would be the "no aliasing, stack values are always copies" property from the language section. If so, connect it back to that explicitly. Tuples as "views" of the stack also sounds interesting enough to deserve a sentence on what it means.
+
 
 ## Conclusion
 
 Henceforth was a great project to work on to further improve my understanding of compilers. It was my
 second full compiler implementation, and I was very happy to be able to try my hand at implementing a
-compiler again, but this time spend most of my effort in designing good APIs and making the codebase
-scalable. Over the year we worked on it, I always felt it was easy to return to the codebase because of
-that, and I'm quite happy with the result.
+compiler again, but this time spending most of my effort in designing good APIs and making the codebase
+scalable.
+
+Further development will be going on hiatus while I focus on the PhD prep phase at Saarland, and
+João has his Masters to work on as well.
 
 I would've liked to implement more optimizations and expand the capabilities of our SSA middle end in
 general, but this is what we managed to implement over the last year with the free time we had. I hope to
 return to this codebase in the future to test out new optimizations in my own SSA middle end,
 and I'm very happy that I have a stable project where I get to play around with compiler related ideas.
 
+
+### Using the language
+
 The language itself is an interesting middle ground between imperative and stack
 languages, and I think it offers a good mixed approach that works surprisingly well for
 writing certain kinds of programs.
 
-For anyone interested in trying out the language or looking at the compiler, you can find it on
-[Github](https://github.com/riogu/henceforth), or you can go through the
-[Language Reference & Getting Started Guide](https://riogu.github.io/henceforth/).
+Talk about what was awkward while writing Tetris.
 
+`NOTE (opinion):` This is your closing claim and it's the vaguest sentence in the post. Which kinds of programs? You wrote Tetris in it, so say what felt natural and what felt awkward. Also say where the hybrid approach doesn't work. Admitting a limitation makes the positive claim more believable, and it's a good note to end on.
+
+For anyone interested in trying out the language or looking at the compiler, you can find it on
+[GitHub](https://github.com/riogu/henceforth), or you can go through the
+[Language Reference & Getting Started Guide](https://riogu.github.io/henceforth/).
