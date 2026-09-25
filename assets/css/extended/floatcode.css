@@ -23,7 +23,7 @@
    re-check this the same way — resize the browser (or zoom, which shrinks
    the effective viewport the same way) down through this breakpoint and
    watch for clipping just above it. */
-@media (min-width: 1300px) {
+@media (min-width: 1350px) {
   .float-code-wrap {
     position: absolute;
     width: 300px;

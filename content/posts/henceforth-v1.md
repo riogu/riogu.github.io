@@ -19,10 +19,10 @@ v1.0.
 
 Henceforth is a [stack-based language](https://en.wikipedia.org/wiki/Stack-oriented_programming) where
 stack effects and types are verified at compile time rather than relying on runtime features, which are
-commonly present in stack-based languages in order to resolve some challenges{{% sidenote side="right"
-%}} In Forth, for example, a loop can change the depth of the stack however it wants, so the stack depth
+commonly present in stack-based languages in order to resolve some challenges{{< sidenote side="right"
+>}} In Forth, for example, a loop can change the depth of the stack however it wants, so the stack depth
 depends on the trip count. If you allowed that in a compiled language, you wouldn't know how many
-elements to return from a function! {{% /sidenote %}} that arise with the paradigm. A code example would
+elements to return from a function! {{< /sidenote >}} that arise with the paradigm. A code example would
 look something like this:
 
 ```rust
@@ -85,11 +85,11 @@ familiar format.
 
 
 Personally, another goal I had for the project this time around was to try to write a scalable and modular
-compiler{{% sidenote side="left" %}}
+compiler{{< sidenote side="left" >}}
 While implementing this compiler I went through literature like [Cooper & Torczon's Engineering a
 Compiler](https://www.google.pt/books/edition/Engineering_a_Compiler/xcJrEAAAQBAJ?hl=pt-PT&gbpv=0), as I
 wanted it to be a more informed and structured project than last time.
-{{% /sidenote  %}}, rather than solely focusing on language features. This meant simplifying the frontend language
+{{< /sidenote  >}}, rather than solely focusing on language features. This meant simplifying the frontend language
 in some places and leaving interesting features for later releases in order to actually complete an
 initial minimal version (which still took a year!).
 
@@ -126,10 +126,10 @@ lot more time and work.
 
 
 ## The language
-{{% sidetext side="right" offset="2em" %}}
+{{< sidetext side="right" offset="2em" >}}
 Those interested in knowing more about the language in detail can check out the [Language Reference & Getting
 Started Guide](https://riogu.github.io/henceforth/).
-{{% /sidetext  %}}
+{{< /sidetext  >}}
 Henceforth supports move `&` vs copy `:` operators from the stack on assignments and function calls. These decide if a
 value on the stack should be copied or popped. It is the main mechanism to interact
 between the imperative and the stack-based side of the language, and pass along values.
@@ -259,26 +259,31 @@ fn bubble_sort: ([]i32 i32) -> ([]i32) {
 ## Frontend
 
 The [recursive descent parser](https://github.com/riogu/henceforth/blob/main/src/hfs/parser.rs) is
-actually quite simple compared to many other languages. One main reason for this is that the parser
-doesn't need to deal with any operator precedence, since that isn't present in stack-based languages like
-Henceforth.
+actually quite simple compared to many other languages. One main reason for this is
+that the parser doesn't need to deal with any operator precedence, since that isn't
+present in stack-based languages like Henceforth.
 
-Most of the interesting work went into the [stack
-analyzer](https://github.com/riogu/henceforth/blob/main/src/hfs/stack_analyzer.rs) pass, which simulates
-the stack at compile time and reconstructs the AST as an "imperative" language's AST from the stack
-semantics. This is the core idea that makes it so most stack operations don't really emit any codegen.
-
-The other half of stack simulation involves keeping track of the depth and types of each control flow
+Most of the frontend work went into the [stack
+analyzer](https://github.com/riogu/henceforth/blob/main/src/hfs/stack_analyzer.rs)
+pass, which simulates the stack at compile time and reconstructs the AST as an
+"imperative" language's AST from the stack semantics. This is the core idea that
+makes it so most stack operations don't really emit any codegen. The other half of
+stack simulation involves keeping track of the depth and types of each control flow
 branch, as shown in [this earlier example](#stack-depth-example).
 
-`NOTE (opinion):` You say most of the interesting work went into the stack analyzer, then spend two sentences on it. This is the core novelty of the compiler, so it deserves the most detail. What was hard? Reconciling stack states where branches join, loops whose bodies must be stack-neutral, `return` in the middle of nested blocks, error reporting that points at the right line? A small before/after (stack code in, reconstructed imperative AST out) would also help. It's the one transformation readers can't picture on their own.
 
 The next section showcases how the [IR
-lowerer](https://github.com/riogu/henceforth/blob/main/src/hfs/ir_lowerer.rs) pass takes our AST from the
-previous pass and runs another round of stack simulation, in order to output SSA IR that is agnostic to any
-stack related semantics.
+lowerer](https://github.com/riogu/henceforth/blob/main/src/hfs/ir_lowerer.rs) pass
+takes our AST from the previous pass and runs another round of stack simulation, in
+order to output SSA IR that is agnostic to any stack related semantics.
 
-`NOTE (opinion):` Why does the lowerer need a second round of simulation instead of the analyzer annotating the AST once? If that was a deliberate tradeoff (simpler passes, no stored stack state), saying so is a good design opinion. If you'd change it now, saying that is good too.
+We decided to run stack simulation twice because we assumed we wouldn't have to do
+much work on the second pass, but in practice we ended up with 2 copies of the same
+stack simulation that would often go out of sync. A better solution would've been
+to annotate the AST with the computed information so that later passes could use it.
+This would've also improved error reporting and other parts of the frontend as
+well.
+
 
 ## Lowering to a CFG and SSA IR
 
@@ -292,11 +297,11 @@ let bar: i32;
 ```
 
 Would emit this IR:
-{{% sidetext side="left" offset="3em" %}}
+{{< sidetext side="left" offset="3em" >}}
 Note that the frontend emits memory-form IR with alloca/store pairs and
 [Mem2Reg](https://github.com/riogu/henceforth/blob/7ab535fedc0f861998318bf2415476fe366b281f/src/hfs/ir_optimizations.rs#L166)
 promotes it later, similarly to what LLVM does.
-{{% /sidetext  %}}
+{{< /sidetext  >}}
 ```rust
 start_1:
   %0 = i32 1
@@ -333,10 +338,6 @@ Stack operations like `@rot`, `@pop`, `@swap` and others are frontend constructs
 compiler, and once they are interpreted, there is no real concept of a stack by the time we are emitting
 our SSA IR.
 
-## IR as a textual format
-
-`NOTE:` João this is for you to write, talk about your invertible syntax thing or whatever it is.
-
 ## Optimizations and middle end work
 
 Henceforth implements its own
@@ -357,7 +358,32 @@ be used for other frontends in the future.
 
 ### Mutable IR and def-use chains in Rust
 
-`NOTE (opinion):` The post is tagged Rust, and a mutable graph IR with def-use chains and RAUW is a notoriously awkward thing to build in Rust. How did you represent it (arenas and indices, `Rc<RefCell>`, something else), and would you do it the same way again? Rust readers will care about this more than almost anything else in the section, and it's exactly the kind of API design you say was the focus of the project.
+In Rust, it is usually quite awkward to work with mutable graph data structures,
+although this is what you end up wanting for an IR 
+where instructions reference each other, the CFG has cycles, and passes delete
+things that other nodes still point to.
+
+Henceforth avoids most of this by storing everything in arenas and referring to
+nodes by id, so nothing ever holds a reference to anything else. Since ids are
+`Copy`, analyses like def-use chains or the dominator tree are just side tables
+keyed by ids.
+
+The AST's arena just uses `Vec` because it never needs to delete anything.
+The IR arena uses [SlotMap](https://docs.rs/slotmap/latest/slotmap/) instead, since
+passes delete instructions and blocks. SlotMap keys carry a generation counter, so
+an id for a deleted instruction fails the lookup rather than pointing at whatever
+reused that slot. This lets passes like Mem2Reg delete instructions as they go and
+clean up later without worrying about stale ids.
+
+```rust
+pub struct IrArena {
+    pub functions: SlotMap<IrFuncId, IrFunction>,
+    pub blocks: SlotMap<BlockId, BasicBlock>,
+    pub instructions: SlotMap<InstId, Instruction>,
+    pub terminators: SlotMap<TermInstId, TerminatorInst>,
+    // ...
+}
+```
 
 
 ### Implemented optimizations
@@ -462,22 +488,54 @@ GVN and inlining would be interesting to work on next when I have the time.
 
 ### Postponed features
 
-We aimed for the language itself to be quite minimal on this initial release, so complex features like
-user types or pattern matching weren't added, although we did get a lot of work done on tuples and using
-them as "views" of the stack:
+We aimed for the language itself to be quite minimal on this initial release, so
+complex features like user types or pattern matching weren't added, although we did
+get a lot of work done on tuples:
 
 ```rust
-// add example of tuples here
+fn divmod: (i32 i32) -> ((i32 i32)) {
+    let d: i32; &= d;
+    let n: i32; &= n;
+    let q: i32; @(n d /) &= q;
+    let r: i32; @(n d %) &= r;
+    @((q r))  // both results travel as a single value
+}
+
+fn main: () -> () {
+    let result: (i32 i32);
+    @(17 5) &> divmod &= result;
+}
 ```
-Support for pointers and the syntax for them was also added, but we
-ultimately decided not to include it in this release, as they went a little bit against the patterns we
-wanted to be used in the language.
+The idea was that tuples could be used to pass around sections of the stack as a
+single value, and syntactically they fit in very naturally. In practice, we never
+found a use case that convinced us they were worth it, or a syntax for accessing
+members that we were happy with, so they were left out of the language.
+
+
+Support for pointers was also added, but we ultimately decided not to include it in
+this release{{< sidenote side="right" >}}If you try using them, you might get lucky
+and manage to compile a program, but these were definitely not tested!{{< /sidenote >}}:
 
 ```rust
-// add example of pointers here
-```
+fn add_through: (i32* i32**) -> (i32) {
+    let pp: i32**; &= pp;
+    let p: i32*;   &= p;
+    @(p^ pp^^ +)  // `^` dereferences, `^^` goes through two levels
+}
 
-`NOTE (opinion):` This is the most opinionated decision in the post and it's written the most passively. What patterns did pointers break? My guess would be the "no aliasing, stack values are always copies" property from the language section. If so, connect it back to that explicitly. Tuples as "views" of the stack also sounds interesting enough to deserve a sentence on what it means.
+fn main: () -> () {
+    let x: i32; @(2) &= x;
+    let y: i32; @(3) &= y;
+    let py: i32*; @(y&) &= py; // `&` is the `AddressOf` operator
+    @(x& py&) &> add_through &> print;
+}
+```
+The problem with pointers is that they make it too easy to ignore the stack and
+write what is basically C, which goes against the idea of the language to begin
+with. The goal was for users to want (and have) to use stack features, and pointers
+were too "powerful" in what they allowed. They would also break the guarantee that
+stack values are always copies, which makes the flow of values much harder to
+reason about.
 
 
 ## Conclusion
