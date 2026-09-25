@@ -232,6 +232,12 @@ operations, so if stack values aren't used they aren't lowered to anything (this
 Henceforth also supports runtime-sized locals, and supports writing `[]i32` in functions so you don't have to
 specify the size of an array in a function like `bubble_sort` (the array size is passed on the 2nd
 argument).
+
+{{< sidetext side="left" offset="2em" >}}
+`[&]=` or `[:]=` is the operator for assigning into array indexes, which works like
+`@(value idx) [&]= arr`.
+{{< /sidetext  >}}
+
 ```rust
 fn bubble_sort: ([]i32 i32) -> ([]i32) {
     let N: i32; &= N;
@@ -254,7 +260,6 @@ fn bubble_sort: ([]i32 i32) -> ([]i32) {
 }
 ```
 
-`NOTE (fix):` `[&]=` appears here for the first time with no explanation. Add one line on what it pops (value, then index?) or a comment on the first use.
 
 ## Frontend
 
@@ -396,8 +401,6 @@ and
 The effect these optimizations have on generated IR is showcased in the following example, which is
 output by Henceforth with the `--emit-cfg-dot` flag:
 
-`NOTE (fix):` The CleanCFG links use commit `946bc79` while the rest use `7ab535f`. Pin all permalinks to the v1.0 tag.
-
 {{< floatcode lang="rust" side="left" caption="Input program for the generated CFG:" offset="-2.6rem" >}}
 fn factorial: (i32) -> (i32) {
     let n: i32;
@@ -537,6 +540,36 @@ were too "powerful" in what they allowed. They would also break the guarantee th
 stack values are always copies, which makes the flow of values much harder to
 reason about.
 
+## Using the language
+
+While writing Tetris, I noticed that there are some patterns that feel very
+natural, such as writing while loops without a temporary variable:
+
+```rust
+fn func: () -> () {
+    @(0) while @( @dup 100 !=) {
+        // ... do things in the loop 
+        @(1 +)  // increment the counter
+    } @pop
+} 
+```
+
+But since the only real data structure supported for this release is arrays and we
+didn't add user types, you end up writing code that relies on passing around state
+in the form of specific `i32` arguments, and that made it feel like it was hard to
+model some ideas. With support for user types, the language would probably be much
+more pleasant to use.
+
+To my surprise, I had a lot of fun writing programs in Henceforth, and with more
+work on it, it could genuinely be used for non-trivial programs.
+
+{{< sidetext side="left" offset="-12em" >}}
+I actually had initially planned (somewhat ambitiously) to write a Forth
+interpreter with Henceforth, but the language needs user types and better data
+structures to do that ergonomically. I do think that if it had more frontend work,
+writing a Forth interpreter would go quite well.
+{{< /sidetext  >}}
+
 
 ## Conclusion
 
@@ -552,17 +585,6 @@ I would've liked to implement more optimizations and expand the capabilities of 
 general, but this is what we managed to implement over the last year with the free time we had. I hope to
 return to this codebase in the future to test out new optimizations in my own SSA middle end,
 and I'm very happy that I have a stable project where I get to play around with compiler related ideas.
-
-
-### Using the language
-
-The language itself is an interesting middle ground between imperative and stack
-languages, and I think it offers a good mixed approach that works surprisingly well for
-writing certain kinds of programs.
-
-Talk about what was awkward while writing Tetris.
-
-`NOTE (opinion):` This is your closing claim and it's the vaguest sentence in the post. Which kinds of programs? You wrote Tetris in it, so say what felt natural and what felt awkward. Also say where the hybrid approach doesn't work. Admitting a limitation makes the positive claim more believable, and it's a good note to end on.
 
 For anyone interested in trying out the language or looking at the compiler, you can find it on
 [GitHub](https://github.com/riogu/henceforth), or you can go through the

@@ -9,4 +9,4 @@
 <div class="float-code">
 {{ highlight (trim $.Inner "\n") $lang "" }}
 </div>
-</div>
+</div>{{- /* trim the file's own trailing newline - see sidenote.html for why */ -}}

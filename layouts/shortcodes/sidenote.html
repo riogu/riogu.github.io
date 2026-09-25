@@ -2,4 +2,7 @@
 {{- with $.Page.Store.Get "sidenoteCounter" -}}{{ $count = add . 1 }}{{- end -}}
 {{- $.Page.Store.Set "sidenoteCounter" $count -}}
 {{- $side := .Get "side" | default "right" -}}
-<sup class="sidenote-marker">{{ $count }}</sup><span class="sidenote sidenote-{{ $side }}"><sup class="sidenote-marker">{{ $count }}</sup>{{ $.Page.RenderString .Inner }}</span>
+<sup class="sidenote-marker">{{ $count }}</sup><span class="sidenote sidenote-{{ $side }}"><sup class="sidenote-marker">{{ $count }}</sup>{{ $.Page.RenderString .Inner }}</span>{{- /* trim the file's own trailing newline: {{< >}} splices this
+output in verbatim (post-markdown-render), so an untrimmed newline here
+survives into the page as real whitespace right after </span>, which the
+browser then renders as a visible space before whatever follows */ -}}

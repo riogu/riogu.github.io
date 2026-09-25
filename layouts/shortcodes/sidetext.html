@@ -6,4 +6,4 @@
   raw-HTML-block gotcha the old %%-based version needed the anchor span
   for: that only applied when Hugo spliced our output back into the
   markdown source for a %% shortcode.) */ -}}
-<span class="sidenote sidetext sidenote-{{ $side }}"{{ with $offset }} style="--side-offset: {{ . | safeCSS }};"{{ end }}>{{ $.Page.RenderString .Inner }}</span>
+<span class="sidenote sidetext sidenote-{{ $side }}"{{ with $offset }} style="--side-offset: {{ . | safeCSS }};"{{ end }}>{{ $.Page.RenderString .Inner }}</span>{{- /* trim the file's own trailing newline - see sidenote.html for why */ -}}
