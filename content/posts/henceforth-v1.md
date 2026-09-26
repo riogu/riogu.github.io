@@ -74,7 +74,7 @@ couple of reasons for that:
 
 First, stack languages usually ask you to adopt the paradigm all at once, largely without
 compromising with other common paradigms, and that makes it difficult to introduce a
-large number of people that come from either imperative or functional languages to stack-based languages.
+large number of people that come from either imperative or functional languages.
 Secondly, these people tend to find stack languages difficult to read and too implicit.
 
 From that, we decided to make a language that bridges the gap between an imperative
@@ -182,13 +182,14 @@ fn f: (bool bool bool) -> (i32) {
 
 Output:
 ```j
-error: expected i32 on stack for return, found f32
+
+error: in f: (bool, bool, bool) -> (i32): expected i32 on stack for return, found f32
   --> tests/compile_tests/f.hfs:10:13
    |
 10 |             return;   // the return keyword lets functions end early
    |             ^^^^^^
    |
-error: expected a stack depth of 1, found a stack depth of 2
+error: in f: (bool, bool, bool) -> (i32): expected a stack depth of 1, found a stack depth of 2
   --> tests/compile_tests/f.hfs:14:9
    |
 14 |         @(1 2)  // leaves one value too many
