@@ -233,7 +233,7 @@ Henceforth also supports runtime-sized locals, and supports writing `[]i32` in f
 specify the size of an array in a function like `bubble_sort` (the array size is passed on the 2nd
 argument).
 
-{{< sidetext side="left" offset="2em" >}}
+{{< sidetext side="right" offset="2em" >}}
 `[&]=` or `[:]=` is the operator for assigning into array indexes, which works like
 `@(value idx) [&]= arr`.
 {{< /sidetext  >}}
