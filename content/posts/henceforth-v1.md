@@ -1,5 +1,5 @@
 +++
-date = '2026-09-23T08:13:06+01:00'
+date = '2026-09-26T08:13:06+01:00'
 draft = false
 title = "Henceforth - SSA compiler for an imperative stack-based language"
 tags = [ 'Rust', 'SSA', 'Compiler Optimizations', 'Stack-based languages']
