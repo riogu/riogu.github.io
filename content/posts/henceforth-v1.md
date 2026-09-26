@@ -199,6 +199,12 @@ error: in f: (bool, bool, bool) -> (i32): expected a stack depth of 1, found a s
 ```
 
 Various stack keywords exist in the language to allow for stack introspection:
+
+{{< sidetext side="left" offset="2em" >}}
+Note that `@dup` doesn't actually lower to anything, it just makes it so you can
+use that same "3" value twice off the stack.
+{{< /sidetext  >}}
+
 ```rust
 @(1 2 3)
 @dup      // 1 2 3 3
@@ -332,17 +338,19 @@ Additionally, if we did:
 @(3 4 5) @pop @pop @pop
 ```
 
-The `@pop` doesn't exist by the time we emit the IR, since the stack has already been interpreted.
-The frontend will emit these constants:
+The `@pop` doesn't exist by the time we emit the IR, since the stack has already
+been interpreted. The frontend will emit these constants (before
+[DCE](https://github.com/riogu/henceforth/blob/7ab535fedc0f861998318bf2415476fe366b281f/src/hfs/ir_optimizations.rs#L118)
+is ran):
 ```rust
 start_1:
   %0 = i32 3
   %1 = i32 4
   %2 = i32 5
 ```
-Stack operations like `@rot`, `@pop`, `@swap` and others are frontend constructs that exist purely in the
-compiler, and once they are interpreted, there is no real concept of a stack by the time we are emitting
-our SSA IR.
+Stack operations like `@rot`, `@pop`, `@swap` and others are frontend constructs
+that exist purely in the compiler, and there is no real concept of a stack by the
+time we have interpreted them and are emitting our SSA IR.
 
 ## Optimizations and middle end work
 
@@ -374,12 +382,10 @@ nodes by id, so nothing ever holds a reference to anything else. Since ids are
 `Copy`, analyses like def-use chains or the dominator tree are just side tables
 keyed by ids.
 
-The AST's arena just uses `Vec` because it never needs to delete anything.
-The IR arena uses [SlotMap](https://docs.rs/slotmap/latest/slotmap/) instead, since
-passes delete instructions and blocks. SlotMap keys carry a generation counter, so
-an id for a deleted instruction fails the lookup rather than pointing at whatever
-reused that slot. This lets passes like Mem2Reg delete instructions as they go and
-clean up later without worrying about stale ids.
+The AST's arena just uses `Vec` because it never needs to delete anything, however
+the IR arena uses [SlotMap](https://docs.rs/slotmap/latest/slotmap/) instead, since
+passes delete instructions and blocks.
+It looks something like this:
 
 ```rust
 pub struct IrArena {
@@ -390,7 +396,15 @@ pub struct IrArena {
     // ...
 }
 ```
+SlotMap keys carry a generation counter, so an id for a deleted instruction fails
+the lookup rather than pointing at whatever reused that slot. This lets passes like
+Mem2Reg delete instructions as they go and clean up later without worrying about
+stale ids.
 
+The main disadvantage of using ids instead of references is that you need to
+constantly call various getter methods to obtain the actual data, and it makes
+pattern matching a little less ergonomic. The tradeoff is still worth it, as it just
+requires more boilerplate at each call site and in each arena.
 
 ### Implemented optimizations
 
@@ -487,7 +501,9 @@ fn main: () -> () {
 The middle end only implements DCE, Mem2Reg and CleanCFG because the goal was to first make a minimal
 proof of concept set of passes to test the infrastructure and the APIs of the compiler, and only work on
 adding more optimizations once we had a solid base to work on. 
-GVN and inlining would be interesting to work on next when I have the time. 
+LICM would be interesting to work on next when I have the time, as 
+[LoopInfo](https://github.com/riogu/henceforth/blob/946bc793b6833627bc8f2bbd6dd6f85109f6bb3d/src/hfs/ir_analysis.rs#L373)
+is already implemented.
 
 
 ### Postponed features
