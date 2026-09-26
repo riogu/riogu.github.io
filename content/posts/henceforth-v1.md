@@ -327,8 +327,10 @@ start_1:
   store %6, %3
 ```
 
-The compiler simulates the stack in order to associate each usage of a stack value to its user, which is
-why the IR doesn't have to emit any stack operations, all uses are solved during lowering.
+The compiler simulates the stack in order to associate each usage of a stack value
+to its user, which is why the IR doesn't have to emit any stack operations, all
+uses are solved during lowering. Naturally, this is a lot cheaper at runtime than
+if we naively lowered them to actual operations with the stack pointer.
 
 Note that, since the first `:= foo` is a copy, the next `&= bar` statement will use the same result
 computed for `foo` without applying any optimizations.
