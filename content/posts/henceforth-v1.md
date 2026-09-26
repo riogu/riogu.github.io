@@ -418,9 +418,8 @@ output by Henceforth with the `--emit-cfg-dot` flag:
 
 {{< floatcode lang="rust" side="left" caption="Input program for the generated CFG:" offset="-2.6rem" >}}
 fn factorial: (i32) -> (i32) {
-    let n: i32;
+    let n: i32; &= n;
     let result: i32;
-    &= n;
     @(1) &= result;
     while @(n 1 >) {
         @(result n *) &= result;
