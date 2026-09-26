@@ -545,6 +545,10 @@ reason about.
 While writing Tetris, I noticed that there are some patterns that feel very
 natural, such as writing while loops without a temporary variable:
 
+{{< sidetext side="right" offset="1.5em" >}}
+Also note that this usage of `@pop` and `@dup` has no overhead at all.
+The code is simpler and easier to optimize as well.
+{{< /sidetext  >}}
 ```rust
 fn func: () -> () {
     @(0) while @( @dup 100 !=) {
