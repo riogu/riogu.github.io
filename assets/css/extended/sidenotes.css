@@ -19,7 +19,24 @@
     margin-right: 0.35rem;
 }
 
-@media (min-width: 1300px) {
+/* this breakpoint and the 280px width below are shared with .float-code-wrap
+   in floatcode.css on purpose - sidenote/sidetext/floatcode are all margin
+   boxes of the same size, so they should all go sidebar/inline at the same
+   point instead of each having their own slightly-different tuning that
+   drifts out of sync (which is exactly what happened before: 280px+1300px
+   here vs 300px+1350px there).
+
+   the breakpoint itself is computed, not guessed: it's the width of the
+   centered .main box (main-width 720px + its own padding, gap*2 = 24px*2 -
+   see theme-vars.css - giving 768px) plus this margin box appearing on BOTH
+   sides (2 *), each needing its own width (280px) plus the 1.6rem gap next
+   to the text, plus a 100px cushion. That cushion is the part a purely
+   theoretical calc can't give you: real browsers reserve a scrollbar, add
+   their own chrome, etc., and a plain "does the arithmetic just barely work
+   out" breakpoint (which is what broke twice before) doesn't survive that.
+   If --main-width/--gap in theme-vars.css or the 280px below ever change,
+   recompute the first two terms the same way; the +100px stays. */
+@media (min-width: calc(768px + 2 * (280px + 1.6rem) + 50px)) {
     .post-content {
         position: relative;
     }
