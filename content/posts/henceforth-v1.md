@@ -6,9 +6,9 @@ tags = [ 'Rust', 'SSA', 'Compiler Optimizations', 'Stack-based languages']
 summary = """Notes about a statically typed stack-based language that bridges imperative
 semantics with stack semantics, implements an optimizing SSA middle end, and more."""
 
-[build]
-  list = 'never'
-  render = 'always'
+# [build]
+#   list = 'never'
+#   render = 'always'
 +++
 
 ## Overview
