@@ -85,11 +85,11 @@ familiar format.
 
 
 Personally, another goal I had for the project this time around was to try to write a scalable and modular
-compiler{{< sidenote side="left" >}}
+compiler,{{< sidenote side="left" >}}
 While implementing this compiler I went through literature like [Cooper & Torczon's Engineering a
 Compiler](https://www.google.pt/books/edition/Engineering_a_Compiler/xcJrEAAAQBAJ?hl=pt-PT&gbpv=0), as I
 wanted it to be a more informed and structured project than last time.
-{{< /sidenote  >}}, rather than solely focusing on language features. This meant simplifying the frontend language
+{{< /sidenote  >}} rather than solely focusing on language features. This meant simplifying the frontend language
 in some places and leaving interesting features for later releases in order to actually complete an
 initial minimal version (which still took a year!).
 
@@ -314,6 +314,7 @@ Note that the frontend emits memory-form IR with alloca/store pairs and
 [Mem2Reg](https://github.com/riogu/henceforth/blob/7ab535fedc0f861998318bf2415476fe366b281f/src/hfs/ir_optimizations.rs#L166)
 promotes it later, similarly to what LLVM does.
 {{< /sidetext  >}}
+
 ```rust
 start_1:
   %0 = i32 1
