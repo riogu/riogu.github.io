@@ -38,13 +38,11 @@ Hovering over the bottom of the slides should show a few options.
           style="position:absolute; inset:0; width:100%; height:100%; border:0; border-radius:6px;"></iframe>
 </div>
 
-
 ## Recording
 
-`TODO:` add the recording when it is uploaded
-
-<!-- TODO: embed the recording, e.g. a YouTube iframe or
-<video controls style="display:block; width:100%; height:auto;">
-  <source src="/videos/cauldron-2026.mp4" type="video/mp4">
-</video>
--->
+<div style="position:relative; width:100%; aspect-ratio:16/9; margin:1rem 0;">
+  <iframe src="https://www.youtube-nocookie.com/embed/-KBZ5nnCn1Q" title="Cauldron 2026 talk recording"
+          allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"
+          style="position:absolute; inset:0; width:100%; height:100%; border:0; border-radius:6px;"></iframe>
+</div>
