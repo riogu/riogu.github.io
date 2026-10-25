@@ -24,6 +24,15 @@ about the project in the [write-up](/posts/gsoc-2026/) I wrote.
 Below is also the slides from the presentation and a link to a recording of the
 talk.
 
+## Recording
+
+<div style="position:relative; width:100%; aspect-ratio:16/9; margin:1rem 0;">
+  <iframe src="https://www.youtube-nocookie.com/embed/-KBZ5nnCn1Q" title="Cauldron 2026 talk recording"
+          allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"
+          style="position:absolute; inset:0; width:100%; height:100%; border:0; border-radius:6px;"></iframe>
+</div>
+
 
 ## Slides
 
@@ -35,14 +44,5 @@ Hovering over the bottom of the slides should show a few options.
 
 <div style="position:relative; width:100%; aspect-ratio:16/9; margin:1rem 0;">
   <iframe src="/slides/cauldron-2026/" title="Cauldron 2026 slides" allowfullscreen loading="lazy"
-          style="position:absolute; inset:0; width:100%; height:100%; border:0; border-radius:6px;"></iframe>
-</div>
-
-## Recording
-
-<div style="position:relative; width:100%; aspect-ratio:16/9; margin:1rem 0;">
-  <iframe src="https://www.youtube-nocookie.com/embed/-KBZ5nnCn1Q" title="Cauldron 2026 talk recording"
-          allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"
           style="position:absolute; inset:0; width:100%; height:100%; border:0; border-radius:6px;"></iframe>
 </div>
